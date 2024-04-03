@@ -1,10 +1,13 @@
 package br.com.fcr.speedkeyboard
 
 import android.inputmethodservice.InputMethodService
+import android.view.KeyEvent
 import android.view.View
 
-class KeyboardService (): InputMethodService(), View.OnClickListener{
+class KeyboardService (): InputMethodService(), View.OnKeyListener{
     private lateinit var keyId:MutableList<Boolean>
+    private var initClick = false
+    private var endClick = false
     override fun onCreate() {
         super.onCreate()
     }
@@ -13,7 +16,6 @@ class KeyboardService (): InputMethodService(), View.OnClickListener{
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout,null).apply {
             this.setOnClickListener {
-                onClick(it)
                 //caracteres antes
 //                currentInputConnection.getTextBeforeCursor()
                 //caracteres apos
@@ -25,7 +27,8 @@ class KeyboardService (): InputMethodService(), View.OnClickListener{
             }
         }
     }
-    override fun onClick(v: View?) {
+
+    override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
         keyId.clear()
         when(v?.id){
             R.id.btn0 ->{
