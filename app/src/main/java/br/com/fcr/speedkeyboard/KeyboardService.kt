@@ -29,8 +29,12 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
         when (event?.action){
-            MotionEvent.ACTION_DOWN -> {}
-            MotionEvent.ACTION_UP -> {}
+            MotionEvent.ACTION_DOWN -> {
+                v?.setBackgroundResource(R.color.white)
+            }
+            MotionEvent.ACTION_UP -> {
+                v?.setBackgroundResource(R.color.black)
+            }
             MotionEvent.ACTION_SCROLL -> {}
         }
        return true
