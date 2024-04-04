@@ -12,6 +12,7 @@ import kotlin.math.log
 
 class KeyboardService() : InputMethodService(), View.OnTouchListener {
     private lateinit var btn:List<Button>
+    private var isInitCommand = false
     private var isEndCommand = false
 
     @SuppressLint("ClickableViewAccessibility")
@@ -37,14 +38,19 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
         when (event?.action){
             MotionEvent.ACTION_DOWN -> {
+                isInitCommand = true
                 v?.setBackgroundResource(R.color.purple_500)
-                currentInputConnection.apply {
-//                    setComposingText("Composi",1)
-//                    setComposingText("Composin",1)
-                    commitText("Composing",1)
-                }
+                (v as? Button)?.isPressed = true
             }
             MotionEvent.ACTION_UP -> {
+                if (isInitCommand && btn.none{ it.isPressed }){
+                    isInitCommand = false
+                    currentInputConnection.apply {
+                        commitText("Composing",1)
+                    }
+                    isEndCommand = true
+                }
+                btn.forEach { it.isPressed = false }
                 v?.setBackgroundResource(R.color.white)
             }
             MotionEvent.ACTION_SCROLL -> {
