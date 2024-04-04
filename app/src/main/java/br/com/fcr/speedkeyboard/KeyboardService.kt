@@ -11,10 +11,7 @@ import android.widget.Toast
 import kotlin.math.log
 
 class KeyboardService() : InputMethodService(), View.OnTouchListener {
-    private lateinit var btn:List<Button>
-    private var isInitCommand = false
-    private var isEndCommand = false
-
+    private lateinit var btn: List<Button>
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
@@ -36,27 +33,23 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        when (event?.action){
+        when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
-                isInitCommand = true
-                v?.setBackgroundResource(R.color.purple_500)
                 (v as? Button)?.isPressed = true
             }
+
             MotionEvent.ACTION_UP -> {
-                if (isInitCommand && btn.none{ it.isPressed }){
-                    isInitCommand = false
-                    currentInputConnection.apply {
-                        commitText("Composing",1)
-                    }
-                    isEndCommand = true
-                }
-                btn.forEach { it.isPressed = false }
-                v?.setBackgroundResource(R.color.white)
+                (v as? Button)?.isPressed = false
             }
+
             MotionEvent.ACTION_SCROLL -> {
-                Toast.makeText(this,"SCROLLING",Toast.LENGTH_LONG).show()
             }
         }
-       return true
+        if (btn.none{it.isPressed}){
+            currentInputConnection.apply {
+                commitText("TESTE",1)
+            }
+        }
+        return true
     }
 }
