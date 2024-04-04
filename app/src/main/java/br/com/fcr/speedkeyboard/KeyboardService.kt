@@ -5,6 +5,7 @@ import android.inputmethodservice.InputMethodService
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import br.com.fcr.speedkeyboard.utils.getIdString
 
 class KeyboardService() : InputMethodService(), View.OnTouchListener {
     private lateinit var buttons: List<Button>
@@ -41,7 +42,7 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
         }
         if (buttons.none{it.isPressed}){
             currentInputConnection.apply {
-                commitText("TESTE",1)
+                commitText(buttons.getIdString(),1)
             }
         }
         return true
