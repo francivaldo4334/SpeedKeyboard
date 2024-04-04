@@ -11,28 +11,26 @@ import android.widget.Toast
 import kotlin.math.log
 
 class KeyboardService() : InputMethodService(), View.OnTouchListener {
-    private lateinit var btn0:Button
-    private lateinit var btn1:Button
-    private lateinit var btn2:Button
-    private lateinit var btn3:Button
-    private lateinit var btn4:Button
-    private lateinit var btn5:Button
+    private lateinit var btn:List<Button>
+    private var isEndCommand = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
-            btn0 = findViewById(R.id.btn0)
-            btn1 = findViewById(R.id.btn1)
-            btn2 = findViewById(R.id.btn2)
-            btn3 = findViewById(R.id.btn3)
-            btn4 = findViewById(R.id.btn4)
-            btn5 = findViewById(R.id.btn5)
-            btn0.setOnTouchListener(this@KeyboardService)
-            btn1.setOnTouchListener(this@KeyboardService)
-            btn2.setOnTouchListener(this@KeyboardService)
-            btn3.setOnTouchListener(this@KeyboardService)
-            btn4.setOnTouchListener(this@KeyboardService)
-            btn5.setOnTouchListener(this@KeyboardService)
+            btn = buildList {
+                add(findViewById(R.id.btn0))
+                add(findViewById(R.id.btn1))
+                add(findViewById(R.id.btn2))
+                add(findViewById(R.id.btn3))
+                add(findViewById(R.id.btn4))
+                add(findViewById(R.id.btn5))
+            }
+            btn[0].setOnTouchListener(this@KeyboardService)
+            btn[1].setOnTouchListener(this@KeyboardService)
+            btn[2].setOnTouchListener(this@KeyboardService)
+            btn[3].setOnTouchListener(this@KeyboardService)
+            btn[4].setOnTouchListener(this@KeyboardService)
+            btn[5].setOnTouchListener(this@KeyboardService)
         }
     }
 
@@ -43,7 +41,7 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
                 currentInputConnection.apply {
 //                    setComposingText("Composi",1)
 //                    setComposingText("Composin",1)
-//                    commitText("Composing",1)
+                    commitText("Composing",1)
                 }
             }
             MotionEvent.ACTION_UP -> {
