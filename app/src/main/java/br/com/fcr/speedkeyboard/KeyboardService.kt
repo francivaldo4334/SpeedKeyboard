@@ -6,14 +6,19 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import androidx.versionedparcelable.ParcelImpl
 import br.com.fcr.speedkeyboard.utils.getIdString
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class KeyboardService() : InputMethodService(), View.OnTouchListener {
     private lateinit var buttons: List<Button>
-    private var lastTouchTime = 0L
     private val delayTouchTime = 500
-    private lateinit var mapKeyLastTouchTime: List<MutableMap<Int, Long>>
+    private lateinit var listKeyLastTouchTime: MutableMap<Int, Pair<Boolean,Long>>
 
+    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
@@ -31,8 +36,24 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
             buttons[3].setOnTouchListener(this@KeyboardService)
             buttons[4].setOnTouchListener(this@KeyboardService)
             buttons[5].setOnTouchListener(this@KeyboardService)
-            mapKeyLastTouchTime = buttons.map {
-                mutableMapOf(it.id to 0L)
+            listKeyLastTouchTime = mutableMapOf()
+            buttons.forEach {
+                listKeyLastTouchTime[it.id] = Pair(false,0L)
+            }
+            GlobalScope.launch {
+                while (true){
+                    Log.d("TESTE:", "TESTE")
+                    val currencyTime = System.currentTimeMillis()
+                    buttons.filter { it.isPressed }.forEach {
+                        listKeyLastTouchTime[it.id]?.let { pair ->
+                            if (currencyTime - pair.second >= delayTouchTime && pair.first) {
+                                listKeyLastTouchTime[it.id] = Pair(false,currencyTime)
+                                it.isPressed = false
+                            }
+                        }
+                    }
+                    delay(300)
+                }
             }
         }
     }
@@ -43,15 +64,17 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
             MotionEvent.ACTION_DOWN -> {
                 button?.isPressed = true
                 button?.id?.let { id ->
-                    mapKeyLastTouchTime.find { it.containsKey(id) }
-                        ?.set(id, System.currentTimeMillis())
+                    listKeyLastTouchTime[id] = Pair(false,System.currentTimeMillis())
                 }
+                Log.d("BTN:","click")
             }
 
             MotionEvent.ACTION_UP -> {
-                val currencyTime = System.currentTimeMillis()
-                if (currencyTime - lastTouchTime >= delayTouchTime)
-                    button?.isPressed = false
+                button?.id?.let {id ->
+                    listKeyLastTouchTime[id]?.let {
+                        listKeyLastTouchTime[id] = Pair(true,it.second)
+                    }
+                }
             }
 
             MotionEvent.ACTION_SCROLL -> {}
@@ -61,7 +84,6 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
                 commitText(buttons.getIdString(), 1)
             }
         }
-        Log.d("IT:", mapKeyLastTouchTime.joinToString { "${it.keys}: ${it.values}\n" })
         return true
     }
 }
