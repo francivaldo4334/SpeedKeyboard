@@ -17,6 +17,7 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
     private lateinit var buttons: List<Button>
     private val delayTouchTime = 500
     private lateinit var listKeyLastTouchTime: MutableMap<Int, Pair<Boolean,Long>>
+    private var resutlIdString = ""
 
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("ClickableViewAccessibility")
@@ -40,36 +41,32 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
             buttons.forEach {
                 listKeyLastTouchTime[it.id] = Pair(false,0L)
             }
-            GlobalScope.launch {
-                while (true){
-                    Log.d("TESTE:", "TESTE")
-                    val currencyTime = System.currentTimeMillis()
-                    buttons.filter { it.isPressed }.forEach {
-                        listKeyLastTouchTime[it.id]?.let { pair ->
-                            if (currencyTime - pair.second >= delayTouchTime && pair.first) {
-                                listKeyLastTouchTime[it.id] = Pair(false,currencyTime)
-                                it.isPressed = false
-                            }
-                        }
-                    }
-                    delay(300)
-                }
-            }
         }
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
         val button = (v as? Button)
+        val currencyTime = System.currentTimeMillis()
+        buttons.filter { it.isPressed }.forEach {
+            listKeyLastTouchTime[it.id]?.let { pair ->
+                if (currencyTime - pair.second >= delayTouchTime && pair.first) {
+                    listKeyLastTouchTime[it.id] = Pair(false,currencyTime)
+                    it.isPressed = false
+                    resutlIdString = buttons.getIdString()
+                }
+            }
+        }
         when (event?.action) {
             MotionEvent.ACTION_DOWN -> {
                 button?.isPressed = true
                 button?.id?.let { id ->
                     listKeyLastTouchTime[id] = Pair(false,System.currentTimeMillis())
                 }
-                Log.d("BTN:","click")
+                resutlIdString = buttons.getIdString()
             }
 
             MotionEvent.ACTION_UP -> {
+                button?.isPressed = false
                 button?.id?.let {id ->
                     listKeyLastTouchTime[id]?.let {
                         listKeyLastTouchTime[id] = Pair(true,it.second)
@@ -81,7 +78,7 @@ class KeyboardService() : InputMethodService(), View.OnTouchListener {
         }
         if (buttons.none { it.isPressed }) {
             currentInputConnection.apply {
-                commitText(buttons.getIdString(), 1)
+                commitText(resutlIdString + "|", 1)
             }
         }
         return true
