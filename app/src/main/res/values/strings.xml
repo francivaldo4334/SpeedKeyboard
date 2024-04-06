@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Speed Keyboard</string>
+    <string name="t1">A</string>
+    <string name="t2">E</string>
+    <string name="t3">I</string>
+    <string name="t4">S</string>
+    <string name="t5">R</string>
+    <string name="t6">N</string>
+    <string name="shift">SHIFT\ </string>
+    <string name="key_"></string>
+    <string name="divider">|</string>
 </resources>
