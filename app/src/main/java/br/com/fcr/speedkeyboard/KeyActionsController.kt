@@ -12,6 +12,7 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
     var isDelete = false
     var isCapslock = false
     var isShift = false
+    var keyIdStates:Pair<String,Long> = Pair("",0)
     fun disablePressedButtons(buttons: List<Button>) {
         val currencyTime = System.currentTimeMillis()
         buttons.filter { it.isPressed }.forEach {
@@ -31,6 +32,7 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
             listKeyLastTouchTime[id] = Pair(false, System.currentTimeMillis())
         }
         resultIdString = buttons.getIdString()
+        keyIdStates = Pair(resultIdString,System.currentTimeMillis())
     }
 
     fun onActionUp(button: Button) {

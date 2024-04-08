@@ -2,13 +2,10 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.core.view.postDelayed
-import kotlinx.coroutines.delay
 
 
 class KeyboardService() : InputMethodService() {
@@ -37,19 +34,32 @@ class KeyboardService() : InputMethodService() {
                         keyActionsController.loadKeyAction()
                         keyActionsController.execute(currentInputConnection)
                     }
-                    if (isRunnableLongPress){
+                    if (isRunnableLongPress) {
                         isRunnableLongPress = false
                     }
                 }
 
                 override fun onActionDown(button: Button) {
                     keyActionsController.onActionDown(buttons, button)
+                    Thread(Runnable {
+                        val lastState = keyActionsController.keyIdStates
+                        val sleep = 50L
+                        Thread.sleep(sleep)
+                        val currentKeyState = keyActionsController.keyIdStates
+                        if (
+                                lastState.first == currentKeyState.first &&
+                                currentKeyState.second - lastState.second >= sleep
+                        ){
+                            onActionLongPress()
+                        }
+                        stopSelf()
+                    }).start()
                 }
 
                 override fun onActionLongPress() {
                     isRunnableLongPress = true
                     Thread(Runnable {
-                        while (isRunnableLongPress){
+                        while (isRunnableLongPress) {
                             keyActionsController.execute(currentInputConnection)
                             Thread.sleep(50)
                         }
