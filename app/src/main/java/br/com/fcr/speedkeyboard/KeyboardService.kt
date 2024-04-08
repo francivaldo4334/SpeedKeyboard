@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import br.com.fcr.speedkeyboard.utils.getIdString
 
 
 class KeyboardService() : InputMethodService() {
@@ -34,22 +35,18 @@ class KeyboardService() : InputMethodService() {
                         keyActionsController.loadKeyAction()
                         keyActionsController.execute(currentInputConnection)
                     }
-                    if (isRunnableLongPress) {
-                        isRunnableLongPress = false
-                    }
+                    isRunnableLongPress = false
                 }
 
                 override fun onActionDown(button: Button) {
                     keyActionsController.onActionDown(buttons, button)
+                    keyActionsController.loadKeyAction()
                     Thread(Runnable {
-                        val lastState = keyActionsController.keyIdStates
-                        val sleep = 50L
+                        val sleep = 1000L
                         Thread.sleep(sleep)
-                        val currentKeyState = keyActionsController.keyIdStates
-                        if (
-                                lastState.first == currentKeyState.first &&
-                                currentKeyState.second - lastState.second >= sleep
-                        ){
+                        val lastKeyState = keyActionsController.keyIdAndTimeState
+                        val keyIdString = buttons.getIdString()
+                        if (keyIdString == lastKeyState.first) {
                             onActionLongPress()
                         }
                         stopSelf()
@@ -61,7 +58,7 @@ class KeyboardService() : InputMethodService() {
                     Thread(Runnable {
                         while (isRunnableLongPress) {
                             keyActionsController.execute(currentInputConnection)
-                            Thread.sleep(50)
+                            Thread.sleep(100)
                         }
                         stopSelf()
                     }).start()
