@@ -2,11 +2,12 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 
 
 class KeyboardService() : InputMethodService() {
@@ -32,23 +33,18 @@ class KeyboardService() : InputMethodService() {
                     keyActionsController.onActionUp(button)
                     if (keyActionsController.isEndCommand(buttons)) {
                         keyActionsController.loadKeyAction()
-                        keyActionsController.execute { delete, key ->
-                            currentInputConnection.apply {
-                                when{
-                                    delete -> {
-                                        deleteSurroundingText(1,0)
-                                    }
-                                    else -> {
-                                        commitText(key, 1)
-                                    }
-                                }
-                            }
-                        }
+                        keyActionsController.execute(currentInputConnection)
+                    }
+                    if(mainLooper.thread.isAlive){
+                        mainLooper.thread
                     }
                 }
 
                 override fun onActionDown(button: Button) {
                     keyActionsController.onActionDown(buttons, button)
+                }
+
+                override fun onActionLongPress() {
                 }
 
             })

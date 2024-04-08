@@ -1,5 +1,6 @@
 package br.com.fcr.speedkeyboard
 
+import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.getIdString
 
@@ -78,7 +79,16 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
         }
     }
 
-    fun execute(callback: (delete: Boolean, key: String) -> Unit) {
-        callback.invoke(isDelete,keyString)
+    fun execute(currentInputConnection:InputConnection) {
+        currentInputConnection.apply {
+            when{
+                isDelete -> {
+                    deleteSurroundingText(1,0)
+                }
+                else -> {
+                    commitText(keyString, 1)
+                }
+            }
+        }
     }
 }

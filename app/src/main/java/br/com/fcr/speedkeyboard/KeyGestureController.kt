@@ -11,6 +11,7 @@ import android.widget.Button
 interface KeyGestureControllerCallback{
     fun onActionUp(button: Button)
     fun onActionDown(button: Button)
+    fun onActionLongPress()
 }
 @SuppressLint("ClickableViewAccessibility")
 class KeyGestureController(context: Context,val callback: KeyGestureControllerCallback) {
@@ -31,6 +32,7 @@ class KeyGestureController(context: Context,val callback: KeyGestureControllerCa
     init {
         gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
             override fun onLongPress(e: MotionEvent) {
+                callback.onActionLongPress()
                 super.onLongPress(e)
             }
 
