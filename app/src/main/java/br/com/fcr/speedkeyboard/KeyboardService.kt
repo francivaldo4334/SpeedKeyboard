@@ -41,19 +41,11 @@ class KeyboardService() : InputMethodService() {
                 override fun onActionDown(button: Button) {
                     keyActionsController.onActionDown(buttons, button)
                     keyActionsController.loadKeyAction()
-                    Thread(Runnable {
-                        val sleep = 1000L
-                        Thread.sleep(sleep)
-                        val lastKeyState = keyActionsController.keyIdAndTimeState
-                        val keyIdString = buttons.getIdString()
-                        if (keyIdString == lastKeyState.first) {
-                            onActionLongPress()
-                        }
-                        stopSelf()
-                    }).start()
+                }
+                override fun onActionLongPress() {
                 }
 
-                override fun onActionLongPress() {
+                override fun onActionDoubleTap() {
                     isRunnableLongPress = true
                     Thread(Runnable {
                         while (isRunnableLongPress) {

@@ -12,6 +12,7 @@ interface KeyGestureControllerCallback{
     fun onActionUp(button: Button)
     fun onActionDown(button: Button)
     fun onActionLongPress()
+    fun onActionDoubleTap()
 }
 @SuppressLint("ClickableViewAccessibility")
 class KeyGestureController(context: Context,val callback: KeyGestureControllerCallback) {
@@ -31,6 +32,10 @@ class KeyGestureController(context: Context,val callback: KeyGestureControllerCa
 
     init {
         gestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                callback.onActionDoubleTap()
+                return super.onDoubleTap(e)
+            }
             override fun onLongPress(e: MotionEvent) {
                 callback.onActionLongPress()
                 super.onLongPress(e)
