@@ -2,18 +2,20 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
+import androidx.core.view.postDelayed
+import kotlinx.coroutines.delay
 
 
 class KeyboardService() : InputMethodService() {
     private lateinit var buttons: List<Button>
     private lateinit var shiftIndicator: TextView
     private lateinit var keyActionsController: KeyActionsController
+    private var isRunnableLongPress = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
@@ -35,8 +37,8 @@ class KeyboardService() : InputMethodService() {
                         keyActionsController.loadKeyAction()
                         keyActionsController.execute(currentInputConnection)
                     }
-                    if(mainLooper.thread.isAlive){
-                        mainLooper.thread
+                    if (isRunnableLongPress){
+                        isRunnableLongPress = false
                     }
                 }
 
@@ -45,13 +47,21 @@ class KeyboardService() : InputMethodService() {
                 }
 
                 override fun onActionLongPress() {
+                    isRunnableLongPress = true
+                    Thread(Runnable {
+                        while (isRunnableLongPress){
+                            keyActionsController.execute(currentInputConnection)
+                            Thread.sleep(50)
+                        }
+                        stopSelf()
+                    }).start()
                 }
 
             })
             buttons.forEach {
                 it.setOnTouchListener { v, event ->
                     gestureController.setView(v)
-                    if (event.action == MotionEvent.ACTION_UP){
+                    if (event.action == MotionEvent.ACTION_UP) {
                         gestureController.onActionUp()
                     }
                     gestureController
@@ -61,9 +71,9 @@ class KeyboardService() : InputMethodService() {
                 }
             }
             keyActionsController = KeyActionsController(
-                buttons
-                    .associate { it.id to Pair(false, 0L) }
-                    .toMutableMap()
+                    buttons
+                            .associate { it.id to Pair(false, 0L) }
+                            .toMutableMap()
             )
         }
     }
