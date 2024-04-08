@@ -19,7 +19,7 @@ class ChordsManager {
         set("010001", "l")
         set("110100", "b")
         set("011010", "g")
-        set("101001", "f")
+        set("101000", "f")
         set("000101", "j")
         set("111000", "p")
         set("001101", "w")
@@ -29,8 +29,8 @@ class ChordsManager {
         set("101010", "z")
         set("011001", "v")
         set("000111", " ")
-        set("100001", "SHIFT")
-        set("001100", "DELETE")
+        set("010100", "SHIFT")
+        set("001010", "DELETE")
     }
 
     fun getKey(chord: String): String {

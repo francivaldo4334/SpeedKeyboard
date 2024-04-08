@@ -58,6 +58,7 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
         when (keyString) {
             "DELETE" -> {
                 isDelete = true
+                keyString = ""
             }
 
             "SHIFT" -> {
@@ -68,23 +69,23 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
                 } else {
                     isShift = true
                 }
+                keyString = ""
             }
 
-            else -> {
-                if (isShift || isCapslock) {
-                    keyString = keyString.uppercase()
-                    isShift = false
-                }
+            else -> if (isShift || isCapslock) {
+                keyString = keyString.uppercase()
+                isShift = false
             }
         }
     }
 
-    fun execute(currentInputConnection:InputConnection) {
+    fun execute(currentInputConnection: InputConnection) {
         currentInputConnection.apply {
-            when{
+            when {
                 isDelete -> {
-                    deleteSurroundingText(1,0)
+                    deleteSurroundingText(1, 0)
                 }
+
                 else -> {
                     commitText(keyString, 1)
                 }
