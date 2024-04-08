@@ -54,11 +54,11 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
         if (!chordsManager.containsKey(resultIdString)) {
             return
         }
-        keyString = chordsManager.getKey(resultIdString)
-        when (keyString) {
+        keyString = ""
+        val newKeyString = chordsManager.getKey(resultIdString)
+        when (newKeyString) {
             "DELETE" -> {
                 isDelete = true
-                keyString = ""
             }
 
             "SHIFT" -> {
@@ -69,12 +69,13 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
                 } else {
                     isShift = true
                 }
-                keyString = ""
             }
 
             else -> if (isShift || isCapslock) {
-                keyString = keyString.uppercase()
+                keyString = newKeyString.uppercase()
                 isShift = false
+            } else {
+                keyString = newKeyString
             }
         }
     }
