@@ -1,63 +1,57 @@
 package br.com.fcr.speedkeyboard
 
+import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
-import br.com.fcr.speedkeyboard.utils.getIdString
+import br.com.fcr.speedkeyboard.utils.getChordId
 
-class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolean, Long>>) {
+data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
+class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     var chordsManager: ChordsManager = ChordsManager()
     val delayTouchTime = 500
-    var resultIdString = ""
+    var chordId = ""
     var keyString = ""
     var isDelete = false
     var isCapslock = false
     var isShift = false
-    var keyIdAndTimeState = Pair("",0L)
-    fun disablePressedButtons(buttons: List<Button>) {
+    fun checkTimeoutForDisableButtons(buttons: List<Button>) {
         val currencyTime = System.currentTimeMillis()
         buttons.filter { it.isPressed }.forEach {
-            listKeyLastTouchTime[it.id]?.let { pair ->
-                if (currencyTime - pair.second >= delayTouchTime && pair.first) {
-                    listKeyLastTouchTime[it.id] = Pair(false, currencyTime)
-                    it.isPressed = false
-                    resultIdString = buttons.getIdString()
-                }
+            val state = buttonStates[it.id]!!
+            val deltaTime = currencyTime - state.initialPressedTime
+            if (deltaTime >= delayTouchTime && state.isActivated) {
+                it.isPressed = false
+                buttonStates[it.id] = ButtonStates(false, currencyTime)
+                chordId = buttons.getChordId()
             }
         }
     }
 
     fun onActionDown(buttons: List<Button>, button: Button) {
         button.isPressed = true
-        button.id.let { id ->
-            listKeyLastTouchTime[id] = Pair(false, System.currentTimeMillis())
-        }
-        resultIdString = buttons.getIdString()
-        keyIdAndTimeState = Pair(resultIdString, System.currentTimeMillis())
+        buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
+        chordId = buttons.getChordId()
+        loadKeyByChord()
     }
 
-    fun onActionUp(button: Button) {
-        if (isDelete) {
-            isDelete = false
-        }
+    fun onActionUp(button: Button, buttons: List<Button>) {
+        checkTimeoutForDisableButtons(buttons)
+        isDelete = false
         button.isPressed = false
-        button.id.let { id ->
-            listKeyLastTouchTime[id]?.let {
-                listKeyLastTouchTime[id] = Pair(true, it.second)
-            }
-        }
-        keyString = ""
+        val state = buttonStates[button.id]!!
+        buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
     }
 
     fun isEndCommand(buttons: List<Button>): Boolean {
         return buttons.none { it.isPressed }
     }
 
-    fun loadKeyAction() {
-        if (!chordsManager.containsKey(resultIdString)) {
+    fun loadKeyByChord() {
+        if (!chordsManager.containsKey(chordId)) {
             return
         }
         keyString = ""
-        val newKeyString = chordsManager.getKey(resultIdString)
+        val newKeyString = chordsManager.getKey(chordId)
         when (newKeyString) {
             "DELETE" -> {
                 isDelete = true
@@ -83,6 +77,7 @@ class KeyActionsController(val listKeyLastTouchTime: MutableMap<Int, Pair<Boolea
     }
 
     fun execute(currentInputConnection: InputConnection) {
+        loadKeyByChord()
         currentInputConnection.apply {
             when {
                 isDelete -> {

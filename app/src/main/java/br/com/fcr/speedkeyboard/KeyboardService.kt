@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import br.com.fcr.speedkeyboard.utils.getIdString
 
 
 class KeyboardService() : InputMethodService() {
@@ -29,31 +28,28 @@ class KeyboardService() : InputMethodService() {
             }
             val gestureController = KeyGestureController(this@KeyboardService, object : KeyGestureControllerCallback {
                 override fun onActionUp(button: Button) {
-                    keyActionsController.disablePressedButtons(buttons)
-                    keyActionsController.onActionUp(button)
+                    keyActionsController.onActionUp(button,buttons)
                     if (keyActionsController.isEndCommand(buttons)) {
-                        keyActionsController.loadKeyAction()
                         keyActionsController.execute(currentInputConnection)
                     }
-                    isRunnableLongPress = false
+//                    isRunnableLongPress = false
                 }
 
                 override fun onActionDown(button: Button) {
                     keyActionsController.onActionDown(buttons, button)
-                    keyActionsController.loadKeyAction()
                 }
                 override fun onActionLongPress() {
+//                    isRunnableLongPress = true
+//                    Thread(Runnable {
+//                        while (isRunnableLongPress) {
+//                            keyActionsController.execute(currentInputConnection)
+//                            Thread.sleep(100)
+//                        }
+//                        stopSelf()
+//                    }).start()
                 }
 
                 override fun onActionDoubleTap() {
-                    isRunnableLongPress = true
-                    Thread(Runnable {
-                        while (isRunnableLongPress) {
-                            keyActionsController.execute(currentInputConnection)
-                            Thread.sleep(100)
-                        }
-                        stopSelf()
-                    }).start()
                 }
 
             })
@@ -71,7 +67,7 @@ class KeyboardService() : InputMethodService() {
             }
             keyActionsController = KeyActionsController(
                     buttons
-                            .associate { it.id to Pair(false, 0L) }
+                            .associate { it.id to ButtonStates(false, 0L) }
                             .toMutableMap()
             )
         }
