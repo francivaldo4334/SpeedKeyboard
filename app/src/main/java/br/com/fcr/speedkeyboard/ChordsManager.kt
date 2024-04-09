@@ -31,6 +31,7 @@ class ChordsManager {
         set("000111", " ")
         set("010100", "SHIFT")
         set("001010", "DELETE")
+        set("100001","?")
     }
 
     fun getKey(chord: String): String {

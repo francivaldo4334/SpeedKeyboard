@@ -11,14 +11,12 @@ import br.com.fcr.speedkeyboard.utils.getChordId
 
 class KeyboardService() : InputMethodService() {
     private lateinit var buttons: List<Button>
-    private lateinit var shiftIndicator: TextView
     private lateinit var keyActionsController: KeyActionsController
     private var isRunnableLongPress = false
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
-            shiftIndicator = findViewById(R.id.shift_indicator)
             buttons = buildList {
                 add(findViewById(R.id.btn0))
                 add(findViewById(R.id.btn1))

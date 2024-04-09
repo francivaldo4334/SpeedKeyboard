@@ -9,4 +9,5 @@
     <string name="shift">SHIFT\ </string>
     <string name="key_"></string>
     <string name="divider">|</string>
+    <string name="mode_number">0-9</string>
 </resources>
