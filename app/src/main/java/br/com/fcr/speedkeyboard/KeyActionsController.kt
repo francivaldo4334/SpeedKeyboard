@@ -1,5 +1,6 @@
 package br.com.fcr.speedkeyboard
 
+import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.getChordId
@@ -10,6 +11,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     val delayTouchTime = 500
     var chordId = ""
     var key = ""
+    var lastKey = ""
     var isDelete = false
     var isCapslock = false
     var isShift = false
@@ -46,13 +48,20 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     }
 
     fun loadKeyByChord(chord:String) {
+        lastKey = key
         if (!chordsManager.containsKey(chord)) {
             key = ""
             return
         }
         isDelete = false
         key = ""
-        val newKeyString = chordsManager.getKey(chord)
+        var newKeyString = chordsManager.getKey(chord)
+        var listCharacters: List<String> = listOf()
+        val previousShift = chordsManager.regexIsShiftPair.matches(newKeyString)
+        if (previousShift){
+            listCharacters = newKeyString.split("SHIFT")
+            newKeyString = listCharacters.first()
+        }
         when (newKeyString) {
             "DELETE" -> {
                 isDelete = true
@@ -69,7 +78,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
             }
 
             else -> if (isShift || isCapslock) {
-                key = newKeyString.uppercase()
+                key = if (previousShift) listCharacters.last() else newKeyString.uppercase()
                 isShift = false
             } else {
                 key = newKeyString
@@ -78,6 +87,8 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     }
 
     fun execute(key:String, currentInputConnection: InputConnection) {
+        Log.d("KEY_BTN", key)
+        Log.d("KEY_BTN", chordsManager.regexIsShiftPair.matches(key).toString())
         currentInputConnection.apply {
             when {
                 isDelete -> {
@@ -85,7 +96,15 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
                 }
 
                 else -> {
-                    commitText(key, 1)
+                    if (lastKey.isNotBlank() && chordsManager.checkIsDiacriticChord(lastKey.toCharArray().first())){
+                        deleteSurroundingText(1,0)
+                        val tilde = lastKey.toCharArray().first().code
+                        val keyCode = key.toCharArray().first().code
+                        commitText(((tilde shl 8) + keyCode).toString(),1)
+                    }
+                    else {
+                        commitText(key, 1)
+                    }
                 }
             }
         }

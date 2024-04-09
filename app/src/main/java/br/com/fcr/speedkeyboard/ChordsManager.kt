@@ -1,7 +1,12 @@
 package br.com.fcr.speedkeyboard
 
 class ChordsManager {
-    private val keymaps = buildMap<String, String> {
+    val regexIsShiftPair = Regex("^(.)SHIFT(.)$")
+    fun checkIsDiacriticChord(char:Char): Boolean{
+        val unicode = char.code
+        return unicode in 0x0300..0x036F || unicode in 0x1DC0..0x1DFF || unicode in 0x20D0..0x20FF || unicode in 0xFE20..0xFE2F
+    }
+    private val charChords = buildMap<String, String> {
         set("100000", "a")
         set("010000", "e")
         set("001000", "i")
@@ -31,14 +36,20 @@ class ChordsManager {
         set("000111", " ")
         set("100001", "SHIFT")
         set("001100", "DELETE")
-        set("011001","?")
+        set("011001","/SHIFT?")
+        set("101001",";SHIFT:")
+        set("001101","+SHIFT=")
+        set("001011","-SHIFT_")
+        set("111100","~SHIFT^")
+        set("111010","´SHIFT`")
+        set("101100","ç")
     }
 
     fun getKey(chord: String): String {
-        return keymaps[chord] ?: ""
+        return charChords[chord] ?: ""
     }
 
     fun containsKey(chord: String): Boolean {
-        return keymaps.containsKey(chord)
+        return charChords.containsKey(chord)
     }
 }
