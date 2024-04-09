@@ -100,7 +100,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
                     if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastChord)){
                         deleteSurroundingText(1,0)
                         val newKey = "${key}${lastKey}"
-                        commitText(Normalizer.normalize(newKey,Normalizer.Form.NFC)[0].toString(),1)
+                        commitText(Normalizer.normalize(newKey,Normalizer.Form.NFC),1)
                     }
                     else {
                         commitText(key, 1)
