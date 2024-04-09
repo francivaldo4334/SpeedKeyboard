@@ -1,6 +1,5 @@
 package br.com.fcr.speedkeyboard
 
-import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.getChordId
@@ -10,7 +9,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     var chordsManager: ChordsManager = ChordsManager()
     val delayTouchTime = 500
     var chordId = ""
-    var keyString = ""
+    var key = ""
     var isDelete = false
     var isCapslock = false
     var isShift = false
@@ -31,7 +30,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
         button.isPressed = true
         buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
         chordId = buttons.getChordId()
-        loadKeyByChord()
+        loadKeyByChord(chordId)
     }
 
     fun onActionUp(button: Button, buttons: List<Button>) {
@@ -46,12 +45,13 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
         return buttons.none { it.isPressed }
     }
 
-    fun loadKeyByChord() {
-        if (!chordsManager.containsKey(chordId)) {
+    fun loadKeyByChord(chord:String) {
+        if (!chordsManager.containsKey(chord)) {
             return
         }
-        keyString = ""
-        val newKeyString = chordsManager.getKey(chordId)
+        isDelete = false
+        key = ""
+        val newKeyString = chordsManager.getKey(chord)
         when (newKeyString) {
             "DELETE" -> {
                 isDelete = true
@@ -68,16 +68,15 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
             }
 
             else -> if (isShift || isCapslock) {
-                keyString = newKeyString.uppercase()
+                key = newKeyString.uppercase()
                 isShift = false
             } else {
-                keyString = newKeyString
+                key = newKeyString
             }
         }
     }
 
-    fun execute(currentInputConnection: InputConnection) {
-        loadKeyByChord()
+    fun execute(key:String, currentInputConnection: InputConnection) {
         currentInputConnection.apply {
             when {
                 isDelete -> {
@@ -85,7 +84,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
                 }
 
                 else -> {
-                    commitText(keyString, 1)
+                    commitText(key, 1)
                 }
             }
         }

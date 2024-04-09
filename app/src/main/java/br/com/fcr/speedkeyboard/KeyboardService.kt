@@ -6,6 +6,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import br.com.fcr.speedkeyboard.utils.getChordId
 
 
 class KeyboardService() : InputMethodService() {
@@ -28,25 +29,45 @@ class KeyboardService() : InputMethodService() {
             }
             val gestureController = KeyGestureController(this@KeyboardService, object : KeyGestureControllerCallback {
                 override fun onActionUp(button: Button) {
+                    isRunnableLongPress = false
                     keyActionsController.onActionUp(button,buttons)
                     if (keyActionsController.isEndCommand(buttons)) {
-                        keyActionsController.execute(currentInputConnection)
+                        keyActionsController.loadKeyByChord(keyActionsController.chordId)
+                        keyActionsController.execute(
+                                keyActionsController.key,
+                                currentInputConnection
+                        )
                     }
-//                    isRunnableLongPress = false
                 }
 
                 override fun onActionDown(button: Button) {
                     keyActionsController.onActionDown(buttons, button)
+                    Thread(Runnable {
+                        val initialTime = System.currentTimeMillis()
+                        val initialChord = keyActionsController.chordId
+                        var executeLongPress = true
+                        val timeoutLongPress = 500L
+                        while (System.currentTimeMillis() - initialTime < timeoutLongPress){
+                            if (initialChord != buttons.getChordId()){
+                                executeLongPress = false
+                                break
+                            }
+                        }
+                        if (executeLongPress){
+                            keyActionsController.loadKeyByChord(initialChord)
+                            onActionLongPress()
+                        }
+                    }).start()
                 }
                 override fun onActionLongPress() {
-//                    isRunnableLongPress = true
-//                    Thread(Runnable {
-//                        while (isRunnableLongPress) {
-//                            keyActionsController.execute(currentInputConnection)
-//                            Thread.sleep(100)
-//                        }
-//                        stopSelf()
-//                    }).start()
+                    isRunnableLongPress = true
+                    Thread(Runnable {
+                        while (isRunnableLongPress) {
+                            keyActionsController.execute(keyActionsController.key,currentInputConnection)
+                            Thread.sleep(50)
+                        }
+                        stopSelf()
+                    }).start()
                 }
 
                 override fun onActionDoubleTap() {
