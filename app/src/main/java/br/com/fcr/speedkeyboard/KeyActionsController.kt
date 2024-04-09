@@ -13,6 +13,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     var chordId = ""
     var key = ""
     var lastKey = ""
+    var lastChord = ""
     var isDelete = false
     var isCapslock = false
     var isShift = false
@@ -50,6 +51,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
 
     fun loadKeyByChord(chord:String) {
         lastKey = key
+        lastChord = chord
         if (!chordsManager.containsKey(chord)) {
             key = ""
             return
@@ -95,8 +97,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
                 }
 
                 else -> {
-                    Log.d("DASDFAS", "${lastKey}\n${chordsManager.regexIsDiacriticChord.matches(lastKey)}")
-                    if (lastKey.isNotBlank() && key.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastKey)){
+                    if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastChord)){
                         deleteSurroundingText(1,0)
                         val newKey = "${key}${lastKey}"
                         commitText(Normalizer.normalize(newKey,Normalizer.Form.NFC)[0].toString(),1)
