@@ -47,6 +47,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
 
     fun loadKeyByChord(chord:String) {
         if (!chordsManager.containsKey(chord)) {
+            key = ""
             return
         }
         isDelete = false
