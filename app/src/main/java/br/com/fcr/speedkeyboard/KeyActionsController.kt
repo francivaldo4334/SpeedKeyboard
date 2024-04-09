@@ -4,6 +4,7 @@ import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.getChordId
+import java.text.Normalizer
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
 class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
@@ -97,9 +98,8 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
                     Log.d("DASDFAS", "${lastChord}\n${chordsManager.regexIsDiacriticChord.matches(lastChord)}")
                     if (lastChord.isNotBlank() && key.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastChord)){
                         deleteSurroundingText(1,0)
-                        val tilde = lastChord.toCharArray().first().code
-                        val keyCode = key.toCharArray().first().code
-                        commitText(((tilde shl 8) + keyCode).toString(),1)
+                        val newKey = "${lastChord}${key}"
+                        commitText(Normalizer.normalize(newKey,Normalizer.Form.NFC)[0].toString(),1)
                     }
                     else {
                         commitText(key, 1)
