@@ -11,7 +11,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     val delayTouchTime = 500
     var chordId = ""
     var key = ""
-    var lastKey = ""
+    var lastChord = ""
     var isDelete = false
     var isCapslock = false
     var isShift = false
@@ -48,7 +48,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     }
 
     fun loadKeyByChord(chord:String) {
-        lastKey = key
+        lastChord = chord
         if (!chordsManager.containsKey(chord)) {
             key = ""
             return
@@ -87,8 +87,6 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
     }
 
     fun execute(key:String, currentInputConnection: InputConnection) {
-        Log.d("KEY_BTN", key)
-        Log.d("KEY_BTN", chordsManager.regexIsShiftPair.matches(key).toString())
         currentInputConnection.apply {
             when {
                 isDelete -> {
@@ -96,9 +94,10 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
                 }
 
                 else -> {
-                    if (lastKey.isNotBlank() && chordsManager.checkIsDiacriticChord(lastKey.toCharArray().first())){
+                    Log.d("DASDFAS", "${lastChord}\n${chordsManager.regexIsDiacriticChord.matches(lastChord)}")
+                    if (lastChord.isNotBlank() && key.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastChord)){
                         deleteSurroundingText(1,0)
-                        val tilde = lastKey.toCharArray().first().code
+                        val tilde = lastChord.toCharArray().first().code
                         val keyCode = key.toCharArray().first().code
                         commitText(((tilde shl 8) + keyCode).toString(),1)
                     }

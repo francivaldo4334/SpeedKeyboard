@@ -2,10 +2,7 @@ package br.com.fcr.speedkeyboard
 
 class ChordsManager {
     val regexIsShiftPair = Regex("^(.)SHIFT(.)$")
-    fun checkIsDiacriticChord(char:Char): Boolean{
-        val unicode = char.code
-        return unicode in 0x0300..0x036F || unicode in 0x1DC0..0x1DFF || unicode in 0x20D0..0x20FF || unicode in 0xFE20..0xFE2F
-    }
+    val regexIsDiacriticChord = Regex("^111[0-1]+$")
     private val charChords = buildMap<String, String> {
         set("100000", "a")
         set("010000", "e")
