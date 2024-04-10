@@ -24,8 +24,8 @@ class ExampleUnitTest {
         val v2 = Pair(-5.0,0.0)
         val buttonIdsManager = ButtonIdsManager()
         val angle = buttonIdsManager.calcAngle(v1,v2)
-//        println("O ângulo entre os vetores em graus é: $angle")
-//        println("angle: ${buttonIdsManager.getRound45(angle)}")
+        println("O ângulo entre os vetores em graus é: $angle")
+        println("angle: ${buttonIdsManager.getRound45(angle)}")
         //O ângulo entre os vetores em graus é: 90.0
         //angle: 90.0
         assertEquals(4, 2 + 2)

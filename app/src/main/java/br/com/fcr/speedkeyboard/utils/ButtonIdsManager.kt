@@ -1,10 +1,7 @@
 package br.com.fcr.speedkeyboard.utils
 
 import br.com.fcr.speedkeyboard.R
-import kotlin.math.acos
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sqrt
+import kotlin.math.atan2
 
 class ButtonIdsManager {
     enum class Directions {
@@ -61,29 +58,23 @@ class ButtonIdsManager {
         return ids[currentIndex]
     }
 
-    private fun calcScale(v1: Pair<Double, Double>, v2: Pair<Double, Double>) = v1.first * v2.first + v1.second * v2.second
-    private fun calcMagnitude(v: Pair<Double, Double>) = sqrt(v.first * v.first + v.second * v.second)
     fun calcAngle(v1: Pair<Double, Double>, v2: Pair<Double, Double>): Double {
-        val product = calcScale(v1, v2)
-        val magnitudeV1 = calcMagnitude(v1)
-        val magnitudeV2 = calcMagnitude(v2)
-        val productMagnitude = magnitudeV1 * magnitudeV2
-        val coseno = product / productMagnitude
-        val validCoseno = max(-1.0, min(coseno, 1.0))
-        val anguloRad = acos(validCoseno)
-        return Math.toDegrees(anguloRad)
+        val crossProduct = v1.first * v2.second - v1.second * v2.first
+        val dotProduct = v1.first * v2.first + v1.second * v2.second
+        var angle = atan2(crossProduct, dotProduct)
+        angle = Math.toDegrees(angle)
+        if (angle < 0)
+            angle += 360
+        return angle
     }
 
     fun getRound45(angle: Double): Double {
-        var roundedValue = angle % 360
-        if (roundedValue < 0) {
-            roundedValue += 360
+        val rest = (angle % 45)
+        val roundedAngle = angle - rest
+        return if (rest >= (45/2)){
+            roundedAngle + 45
         }
-        val remainder = roundedValue % 45
-        return when {
-            remainder in 0.0..22.5 -> roundedValue - remainder
-            remainder in 22.5..67.5 -> roundedValue + (45 - remainder)
-            else -> 0.0
-        }
+        else
+            roundedAngle
     }
 }
