@@ -53,27 +53,27 @@ class KeyGestureController(context: Context, val callback: KeyGestureControllerC
             }
 
             override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-                val deltaY = e2.y - (e1?.y ?: 0f)
-                val scrollThreshold = 50
-                val isScrollComplete = abs(deltaY) > scrollThreshold
-                var directions: List<ButtonIdsManager.Directions> = emptyList()
-                val button = (view as Button)
-                e1?.let {
-                    val angle = buttonIdsManager.calcAngle(
-                        Pair(0.0, 10.0),
-                        Pair((e1.x - e2.x).toDouble(),(e1.y - e2.y).toDouble())
-                    )
-                    val rounded45 = buttonIdsManager.getRound45(angle)
-                    directions = buttonIdsManager.getDirectionsByRounded45(rounded45)
-                }
-
-                if (e2.x < button.x || e2.x > button.x + button.width || e2.y < button.y || e2.y > button.y + button.height){
-                    callback.onActionUp(button, directions = directions.toTypedArray())
-                }
-                if (isScrollComplete) {
-                    callback.onActionScroll(button = button, directions = directions.toTypedArray())
-                }
-                callback.onActionUp(button = button, directions = directions.toTypedArray())
+//                val deltaY = e2.y - (e1?.y ?: 0f)
+//                val scrollThreshold = 50
+//                val isScrollComplete = abs(deltaY) > scrollThreshold
+//                var directions: List<ButtonIdsManager.Directions> = emptyList()
+//                val button = (view as Button)
+//                e1?.let {
+//                    val angle = buttonIdsManager.calcAngle(
+//                        Pair(0.0, 10.0),
+//                        Pair((e1.x - e2.x).toDouble(),(e1.y - e2.y).toDouble())
+//                    )
+//                    val rounded45 = buttonIdsManager.getRound45(angle)
+//                    directions = buttonIdsManager.getDirectionsByRounded45(rounded45)
+//                    if (e1.x < button.x || e1.x > button.x + button.width || e1.y < button.y || e1.y > button.y + button.height){
+//                        callback.onActionUp(button, directions = directions.toTypedArray())
+//                    }
+//                }
+//
+//                if (isScrollComplete) {
+//                    callback.onActionScroll(button = button, directions = directions.toTypedArray())
+//                }
+//                callback.onActionUp(button = button, directions = directions.toTypedArray())
                 return super.onScroll(e1, e2, distanceX, distanceY)
 
             }

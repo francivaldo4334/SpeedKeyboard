@@ -78,9 +78,9 @@ class KeyboardService() : InputMethodService() {
                 }
 
                 override fun onActionScroll(button: Button, vararg directions: ButtonIdsManager.Directions) {
-                    val newButtonId = ButtonIdsManager().getNextId(button.id, *directions)
-                    val newButton = buttons.find { it.id == newButtonId }
-                    newButton?.let { onActionDown(it) }
+//                    val newButtonId = ButtonIdsManager().getNextId(button.id, *directions)
+//                    val newButton = buttons.find { it.id == newButtonId }
+//                    newButton?.let { onActionDown(it) }
 
                 }
 
