@@ -1,9 +1,14 @@
 package br.com.fcr.speedkeyboard
 
+import android.icu.text.Normalizer2
+import android.icu.text.Transliterator
+import android.os.Build
 import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import br.com.fcr.speedkeyboard.utils.getChordId
+import java.lang.StringBuilder
 import java.text.Normalizer
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
@@ -89,6 +94,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun execute(key:String, currentInputConnection: InputConnection) {
         currentInputConnection.apply {
             when {
@@ -98,9 +104,9 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
 
                 else -> {
                     if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastChord)){
-                        deleteSurroundingText(1,0)
-                        val newKey = "${key}${lastKey}"
-                        commitText(Normalizer.normalize(newKey,Normalizer.Form.NFC),1)
+                        val transliterator = Transliterator.getInstance("NFC")
+                        val newKey = transliterator.transliterate("´a")
+                        commitText(newKey,1)
                     }
                     else {
                         commitText(key, 1)

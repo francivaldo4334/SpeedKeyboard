@@ -2,10 +2,12 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import br.com.fcr.speedkeyboard.utils.getChordId
 
 
@@ -26,6 +28,7 @@ class KeyboardService() : InputMethodService() {
                 add(findViewById(R.id.btn5))
             }
             val gestureController = KeyGestureController(this@KeyboardService, object : KeyGestureControllerCallback {
+                @RequiresApi(Build.VERSION_CODES.Q)
                 override fun onActionUp(button: Button) {
                     isRunnableLongPress = false
                     keyActionsController.onActionUp(button,buttons)
