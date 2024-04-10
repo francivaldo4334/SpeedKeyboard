@@ -76,4 +76,16 @@ class ButtonIdsManager {
         else
             roundedAngle
     }
+    fun getDirectionsByRounded45(rounded:Double): List<Directions>{
+        return when (rounded.toInt()){
+            45*1 -> listOf(Directions.UP,Directions.RIGHT)
+            45*2 -> listOf(Directions.RIGHT)
+            45*3 -> listOf(Directions.DOWN,Directions.RIGHT)
+            45*4 -> listOf(Directions.DOWN)
+            45*5 -> listOf(Directions.DOWN,Directions.LEFT)
+            45*6 -> listOf(Directions.LEFT)
+            45*7 -> listOf(Directions.LEFT,Directions.UP)
+            else -> listOf(Directions.UP)
+        }
+    }
 }

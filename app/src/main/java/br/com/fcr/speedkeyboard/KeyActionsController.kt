@@ -94,7 +94,6 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     fun execute(key:String, currentInputConnection: InputConnection) {
         currentInputConnection.apply {
             when {
@@ -104,9 +103,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
 
                 else -> {
                     if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastChord)){
-                        val transliterator = Transliterator.getInstance("NFC")
-                        val newKey = transliterator.transliterate("´a")
-                        commitText(newKey,1)
+                        commitText(key,1)
                     }
                     else {
                         commitText(key, 1)

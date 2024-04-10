@@ -2,12 +2,10 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
-import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
-import android.widget.TextView
-import androidx.annotation.RequiresApi
+import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
 
 
@@ -28,10 +26,11 @@ class KeyboardService() : InputMethodService() {
                 add(findViewById(R.id.btn5))
             }
             val gestureController = KeyGestureController(this@KeyboardService, object : KeyGestureControllerCallback {
-                @RequiresApi(Build.VERSION_CODES.Q)
-                override fun onActionUp(button: Button) {
+                override fun onActionUp(button: Button, vararg directions: ButtonIdsManager.Directions) {
+                    val buttonId = ButtonIdsManager().getNextId(button.id,*directions)
+                    val button_ = buttons.find { it.id == buttonId }!!
                     isRunnableLongPress = false
-                    keyActionsController.onActionUp(button,buttons)
+                    keyActionsController.onActionUp(button_,buttons)
                     if (keyActionsController.isEndCommand(buttons)) {
                         keyActionsController.loadKeyByChord(keyActionsController.chordId)
                         keyActionsController.execute(
@@ -39,6 +38,7 @@ class KeyboardService() : InputMethodService() {
                                 currentInputConnection
                         )
                     }
+
                 }
 
                 override fun onActionDown(button: Button) {
@@ -72,6 +72,13 @@ class KeyboardService() : InputMethodService() {
                 }
 
                 override fun onActionDoubleTap() {
+                }
+
+                override fun onActionScroll(button: Button, vararg directions: ButtonIdsManager.Directions) {
+                    val newButtonId = ButtonIdsManager().getNextId(button.id, *directions)
+                    val newButton = buttons.find { it.id == newButtonId }
+                    newButton?.let { onActionDown(it) }
+
                 }
 
             })
