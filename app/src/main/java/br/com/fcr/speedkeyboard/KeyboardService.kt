@@ -2,9 +2,11 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.os.Build
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
 
@@ -15,6 +17,7 @@ class KeyboardService() : InputMethodService() {
     private var isRunnableLongPress = false
 
     @SuppressLint("ClickableViewAccessibility")
+    @RequiresApi(Build.VERSION_CODES.CUPCAKE)
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
             buttons = buildList {

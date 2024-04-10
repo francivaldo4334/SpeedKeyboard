@@ -61,8 +61,8 @@ class KeyGestureController(context: Context, val callback: KeyGestureControllerC
                 var directions: List<ButtonIdsManager.Directions> = emptyList()
                 e1?.let {
                     val angle = buttonIdsManager.calcAngle(
-                            Pair(e1.x.toDouble(), e1.y.toDouble()),
-                            Pair(e2.x.toDouble(), e2.y.toDouble())
+                            Pair(0.0, 10.0),
+                            Pair((e2.x - e1.x).toDouble(),(e2.y - e2.y).toDouble())
                     )
                     val rounded45 = buttonIdsManager.getRound45(angle)
                     directions = buttonIdsManager.getDirectionsByRounded45(rounded45)
