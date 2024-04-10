@@ -71,9 +71,8 @@ class ButtonIdsManager {
     fun getRound45(angle: Double): Double {
         val rest = (angle % 45)
         val roundedAngle = angle - rest
-        return if (rest >= (45/2)){
+        return if (rest >= (45/2))
             roundedAngle + 45
-        }
         else
             roundedAngle
     }
