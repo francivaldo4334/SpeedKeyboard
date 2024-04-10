@@ -46,6 +46,10 @@ class KeyGestureController(context: Context,val callback: KeyGestureControllerCa
                 return super.onDown(e)
             }
 
+            override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+                return super.onScroll(e1, e2, distanceX, distanceY)
+
+            }
         })
     }
 }
