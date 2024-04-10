@@ -3,6 +3,18 @@ package br.com.fcr.speedkeyboard
 class ChordsManager {
     val regexIsShiftPair = Regex("^(.)SHIFT(.)$")
     val regexIsDiacriticChord = Regex("^111[0-1]+$")
+    private val numberChords = buildMap<String,String> {
+        set("100000", "1")
+        set("110000", "2")
+        set("010000", "3")
+        set("011000", "4")
+        set("001000", "5")
+        set("000100", "6")
+        set("000110", "7")
+        set("000010", "8")
+        set("000011", "9")
+        set("000001", "0")
+    }
     private val charChords = buildMap<String, String> {
         set("100000", "a")
         set("010000", "e")
