@@ -3,6 +3,7 @@ package br.com.fcr.speedkeyboard
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
 import android.os.Build
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
@@ -29,11 +30,11 @@ class KeyboardService() : InputMethodService() {
                 add(findViewById(R.id.btn5))
             }
             val gestureController = KeyGestureController(this@KeyboardService, object : KeyGestureControllerCallback {
-                override fun onActionUp(button: Button, vararg directions: ButtonIdsManager.Directions) {
-                    val buttonId = ButtonIdsManager().getNextId(button.id,*directions)
-                    val button_ = buttons.find { it.id == buttonId }!!
+                override fun onActionUp(button: Button) {
+//                    val buttonId = ButtonIdsManager().getNextId(button.id,*directions)
+//                    val button_ = buttons.find { it.id == buttonId }!!
                     isRunnableLongPress = false
-                    keyActionsController.onActionUp(button_,buttons)
+                    keyActionsController.onActionUp(button,buttons)
                     if (keyActionsController.isEndCommand(buttons)) {
                         keyActionsController.loadKeyByChord(keyActionsController.chordId)
                         keyActionsController.execute(
@@ -74,10 +75,7 @@ class KeyboardService() : InputMethodService() {
                     }).start()
                 }
 
-                override fun onActionDoubleTap() {
-                }
-
-                override fun onActionScroll(button: Button, vararg directions: ButtonIdsManager.Directions) {
+                override fun onActionScroll(button: Button) {
 //                    val newButtonId = ButtonIdsManager().getNextId(button.id, *directions)
 //                    val newButton = buttons.find { it.id == newButtonId }
 //                    newButton?.let { onActionDown(it) }
@@ -86,15 +84,26 @@ class KeyboardService() : InputMethodService() {
 
             })
             buttons.forEach {
+                it.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+                    println("ok")
+                }
                 it.setOnTouchListener { v, event ->
                     gestureController.setView(v)
-                    if (event.action == MotionEvent.ACTION_UP) {
-                        gestureController.onActionUp()
+                    when (event.action){
+                        MotionEvent.ACTION_UP -> {
+                            gestureController.onActionUp()
+                        }
+                        MotionEvent.ACTION_DOWN -> {
+                            gestureController.onActionDown()
+                        }
                     }
-                    gestureController
-                            .getGestureDetector()
-                            .onTouchEvent(event)
-                    false
+//                    if (event.action == MotionEvent.ACTION_UP) {
+//                        gestureController.onActionUp()
+//                    }
+//                    gestureController
+//                            .getGestureDetector()
+//                            .onTouchEvent(event)
+                    true
                 }
             }
             keyActionsController = KeyActionsController(
