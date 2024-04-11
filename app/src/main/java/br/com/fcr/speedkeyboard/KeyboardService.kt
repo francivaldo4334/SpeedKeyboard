@@ -16,10 +16,12 @@ class KeyboardService() : InputMethodService() {
     private lateinit var buttons: List<Button>
     private lateinit var keyActionsController: KeyActionsController
     private var isRunnableLongPress = false
+    private lateinit var buttonMode:Button
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
+            buttonMode = findViewById(R.id.button_mode)
             buttons = buildList {
                 add(findViewById(R.id.btn0))
                 add(findViewById(R.id.btn1))
@@ -88,6 +90,12 @@ class KeyboardService() : InputMethodService() {
                     }
                     true
                 }
+            }
+            buttonMode.setOnClickListener{
+                var textMode = keyActionsController.nextMode()
+                keyActionsController.setMode(textMode)
+                textMode = keyActionsController.nextMode()
+                (it as Button).text = textMode
             }
             keyActionsController = KeyActionsController(
                     buttons

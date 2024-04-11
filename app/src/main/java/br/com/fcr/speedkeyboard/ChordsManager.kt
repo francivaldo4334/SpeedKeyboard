@@ -15,6 +15,8 @@ class ChordsManager {
         set("000010", "8SHIFT*")
         set("000011", "9SHIFT(")
         set("000001", "0SHIFT)")
+        set("100001", "SHIFT")
+        set("001100", "DELETE")
     }
     private val charChords = buildMap<String, String> {
         set("100000", "a")

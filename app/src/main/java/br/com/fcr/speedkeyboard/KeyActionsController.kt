@@ -107,4 +107,14 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
             }
         }
     }
+    fun setMode(mode:String){
+        chordsManager.setMode(mode)
+    }
+    fun nextMode(): String {
+        val nextMode = when (chordsManager.getMode()){
+            "a-z" -> "0-9"
+            else -> "a-z"
+        }
+        return nextMode
+    }
 }

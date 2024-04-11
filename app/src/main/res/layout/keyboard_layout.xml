@@ -14,6 +14,7 @@
         android:background="@drawable/keyboard_shape"
         android:backgroundTint="@color/surface">
         <Button
+            android:id="@+id/button_mode"
             android:layout_width="@dimen/_48dp"
             android:layout_height="@dimen/_48dp"
             android:background="@drawable/button_select_mode"
