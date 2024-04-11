@@ -28,6 +28,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"/>
         <Button
+            android:id="@+id/button_confirm"
             android:layout_width="@dimen/_48dp"
             android:layout_height="@dimen/_48dp"
             android:background="@drawable/button_action"

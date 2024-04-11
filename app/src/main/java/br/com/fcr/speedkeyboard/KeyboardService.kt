@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
@@ -17,11 +18,13 @@ class KeyboardService() : InputMethodService() {
     private lateinit var keyActionsController: KeyActionsController
     private var isRunnableLongPress = false
     private lateinit var buttonMode:Button
+    private lateinit var buttonConfirm:Button
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
             buttonMode = findViewById(R.id.button_mode)
+            buttonConfirm = findViewById(R.id.button_confirm)
             buttons = buildList {
                 add(findViewById(R.id.btn0))
                 add(findViewById(R.id.btn1))
@@ -96,6 +99,11 @@ class KeyboardService() : InputMethodService() {
                 keyActionsController.setMode(textMode)
                 textMode = keyActionsController.nextMode()
                 (it as Button).text = textMode
+            }
+            buttonConfirm.setOnClickListener{
+                currentInputConnection.apply {
+                    sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_ENTER))
+                }
             }
             keyActionsController = KeyActionsController(
                     buttons
