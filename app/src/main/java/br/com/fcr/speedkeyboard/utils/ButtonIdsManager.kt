@@ -11,13 +11,13 @@ class ButtonIdsManager {
         UP
     }
 
-    val ids = listOf(
-            R.id.btn0,
-            R.id.btn1,
-            R.id.btn2,
-            R.id.btn3,
-            R.id.btn4,
-            R.id.btn5,
+    private val ids = listOf(
+        R.id.btn0,
+        R.id.btn1,
+        R.id.btn2,
+        R.id.btn3,
+        R.id.btn4,
+        R.id.btn5,
     )
 
     fun getNextId(id: Int, vararg directions: Directions): Int {
@@ -71,20 +71,21 @@ class ButtonIdsManager {
     fun getRound45(angle: Double): Double {
         val rest = (angle % 45)
         val roundedAngle = angle - rest
-        return if (rest >= (45/2))
+        return if (rest >= (45 / 2))
             roundedAngle + 45
         else
             roundedAngle
     }
-    fun getDirectionsByRounded45(rounded:Double): List<Directions>{
-        return when (rounded.toInt()){
-            45*1 -> listOf(Directions.UP,Directions.RIGHT)
-            45*2 -> listOf(Directions.RIGHT)
-            45*3 -> listOf(Directions.DOWN,Directions.RIGHT)
-            45*4 -> listOf(Directions.DOWN)
-            45*5 -> listOf(Directions.DOWN,Directions.LEFT)
-            45*6 -> listOf(Directions.LEFT)
-            45*7 -> listOf(Directions.LEFT,Directions.UP)
+
+    fun getDirectionsByRounded45(rounded: Double): List<Directions> {
+        return when (rounded.toInt()) {
+            45 * 1 -> listOf(Directions.UP, Directions.RIGHT)
+            45 * 2 -> listOf(Directions.RIGHT)
+            45 * 3 -> listOf(Directions.DOWN, Directions.RIGHT)
+            45 * 4 -> listOf(Directions.DOWN)
+            45 * 5 -> listOf(Directions.DOWN, Directions.LEFT)
+            45 * 6 -> listOf(Directions.LEFT)
+            45 * 7 -> listOf(Directions.LEFT, Directions.UP)
             else -> listOf(Directions.UP)
         }
     }

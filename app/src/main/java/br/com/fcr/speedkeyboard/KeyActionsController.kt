@@ -1,28 +1,21 @@
 package br.com.fcr.speedkeyboard
 
-import android.icu.text.Normalizer2
-import android.icu.text.Transliterator
-import android.os.Build
-import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
-import androidx.annotation.RequiresApi
 import br.com.fcr.speedkeyboard.utils.getChordId
-import java.lang.StringBuilder
-import java.text.Normalizer
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
-class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
-    var chordsManager: ChordsManager = ChordsManager()
-    val delayTouchTime = 500
+class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonStates>) {
+    private var chordsManager: ChordsManager = ChordsManager()
+    private val delayTouchTime = 500
     var chordId = ""
     var key = ""
-    var lastKey = ""
-    var lastChord = ""
-    var isDelete = false
-    var isCapslock = false
-    var isShift = false
-    fun checkTimeoutForDisableButtons(buttons: List<Button>) {
+    private var lastKey = ""
+    private var lastChord = ""
+    private var isDelete = false
+    private var isCapslock = false
+    private var isShift = false
+    private fun checkTimeoutForDisableButtons(buttons: List<Button>) {
         val currencyTime = System.currentTimeMillis()
         buttons.filter { it.isPressed }.forEach {
             val state = buttonStates[it.id]!!
@@ -54,7 +47,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
         return buttons.none { it.isPressed }
     }
 
-    fun loadKeyByChord(chord:String) {
+    fun loadKeyByChord(chord: String) {
         lastKey = key
         lastChord = chord
         if (!chordsManager.containsKey(chord)) {
@@ -66,7 +59,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
         var newKeyString = chordsManager.getKey(chord)
         var listCharacters: List<String> = listOf()
         val previousShift = chordsManager.regexIsShiftPair.matches(newKeyString)
-        if (previousShift){
+        if (previousShift) {
             listCharacters = newKeyString.split("SHIFT")
             newKeyString = listCharacters.first()
         }
@@ -94,7 +87,7 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
         }
     }
 
-    fun execute(key:String, currentInputConnection: InputConnection) {
+    fun execute(key: String, currentInputConnection: InputConnection) {
         currentInputConnection.apply {
             when {
                 isDelete -> {
@@ -102,10 +95,12 @@ class KeyActionsController(val buttonStates: MutableMap<Int, ButtonStates>) {
                 }
 
                 else -> {
-                    if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(lastChord)){
-                        commitText(key,1)
-                    }
-                    else {
+                    if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(
+                            lastChord
+                        )
+                    ) {
+                        commitText(key, 1)
+                    } else {
                         commitText(key, 1)
                     }
                 }

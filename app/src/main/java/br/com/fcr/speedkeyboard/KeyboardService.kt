@@ -18,7 +18,6 @@ class KeyboardService() : InputMethodService() {
     private var isRunnableLongPress = false
 
     @SuppressLint("ClickableViewAccessibility")
-    @RequiresApi(Build.VERSION_CODES.CUPCAKE)
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
             buttons = buildList {
@@ -29,10 +28,8 @@ class KeyboardService() : InputMethodService() {
                 add(findViewById(R.id.btn4))
                 add(findViewById(R.id.btn5))
             }
-            val gestureController = KeyGestureController(this@KeyboardService, object : KeyGestureControllerCallback {
+            val gestureController = KeyGestureController(object : KeyGestureControllerCallback {
                 override fun onActionUp(button: Button) {
-//                    val buttonId = ButtonIdsManager().getNextId(button.id,*directions)
-//                    val button_ = buttons.find { it.id == buttonId }!!
                     isRunnableLongPress = false
                     keyActionsController.onActionUp(button,buttons)
                     if (keyActionsController.isEndCommand(buttons)) {
@@ -76,40 +73,26 @@ class KeyboardService() : InputMethodService() {
                 }
 
                 override fun onActionScroll(button: Button) {
-//                    val newButtonId = ButtonIdsManager().getNextId(button.id, *directions)
-//                    val newButton = buttons.find { it.id == newButtonId }
-//                    newButton?.let { onActionDown(it) }
 
                 }
 
             })
             buttons.forEach {
-                it.setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                    println("ok")
-                }
                 it.setOnTouchListener { v, event ->
                     gestureController.setView(v)
                     when (event.action){
-                        MotionEvent.ACTION_UP -> {
+                        MotionEvent.ACTION_UP ->
                             gestureController.onActionUp()
-                        }
-                        MotionEvent.ACTION_DOWN -> {
+                        MotionEvent.ACTION_DOWN ->
                             gestureController.onActionDown()
-                        }
                     }
-//                    if (event.action == MotionEvent.ACTION_UP) {
-//                        gestureController.onActionUp()
-//                    }
-//                    gestureController
-//                            .getGestureDetector()
-//                            .onTouchEvent(event)
                     true
                 }
             }
             keyActionsController = KeyActionsController(
                     buttons
-                            .associate { it.id to ButtonStates(false, 0L) }
-                            .toMutableMap()
+                    .associate { it.id to ButtonStates(false, 0L) }
+                    .toMutableMap()
             )
         }
     }
