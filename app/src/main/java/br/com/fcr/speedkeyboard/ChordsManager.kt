@@ -3,17 +3,18 @@ package br.com.fcr.speedkeyboard
 class ChordsManager {
     val regexIsShiftPair = Regex("^(.)SHIFT(.)$")
     val regexIsDiacriticChord = Regex("^111[0-1]+$")
+    private var mode = "a-z"
     private val numberChords = buildMap<String,String> {
-        set("100000", "1")
-        set("110000", "2")
-        set("010000", "3")
-        set("011000", "4")
-        set("001000", "5")
-        set("000100", "6")
-        set("000110", "7")
-        set("000010", "8")
-        set("000011", "9")
-        set("000001", "0")
+        set("100000", "1SHIFT!")
+        set("110000", "2SHIFT@")
+        set("010000", "3SHIFT#")
+        set("011000", "4SHIFT$")
+        set("001000", "5SHIFT%")
+        set("000100", "6SHIFT¨")
+        set("000110", "7SHIFT&")
+        set("000010", "8SHIFT*")
+        set("000011", "9SHIFT(")
+        set("000001", "0SHIFT)")
     }
     private val charChords = buildMap<String, String> {
         set("100000", "a")
@@ -54,11 +55,26 @@ class ChordsManager {
         set("101100","ç")
     }
 
+    fun setMode(mode:String){
+        this.mode = mode
+    }
+    fun getMode(): String {
+        return mode
+    }
+
     fun getKey(chord: String): String {
-        return charChords[chord] ?: ""
+        return when (mode){
+            "a-z" -> charChords[chord] ?: ""
+            "0-9" -> numberChords[chord] ?: ""
+            else -> ""
+        }
     }
 
     fun containsKey(chord: String): Boolean {
-        return charChords.containsKey(chord)
+        return when (mode){
+            "a-z" -> charChords.containsKey(chord)
+            "0-9" -> numberChords.containsKey(chord)
+            else -> false
+        }
     }
 }
