@@ -2,12 +2,11 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
-import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import kotlin.system.exitProcess
 
 
 class KeyboardService() : InputMethodService() {
@@ -16,7 +15,7 @@ class KeyboardService() : InputMethodService() {
     private lateinit var buttonMode: Button
     private lateinit var buttonConfirm: Button
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
             buttonMode = findViewById(R.id.button_mode)
@@ -30,65 +29,47 @@ class KeyboardService() : InputMethodService() {
                 add(findViewById(R.id.btn5))
             }
 
-            val gestureController = KeyGestureController(object : KeyGestureControllerCallback {
-                override fun onActionUp(button: Button) {
-                    keyActionsController.onActionUp(button,buttons)
-                }
-
-                override fun onActionDown(button: Button) {
-                    keyActionsController.onActionDown(buttons, button)
-                }
-
-                override fun onActionScroll(button: Button, x: Float, y: Float) {
-                    keyActionsController.onActionScroll(button, buttons, x, y)
-                }
-
-            })
             buttons.forEach {
                 it.setOnTouchListener { v, event ->
-                    gestureController.setView(v)
+                    val button = v as Button
                     when (event.action) {
                         MotionEvent.ACTION_UP ->
-                            gestureController.onActionUp()
+                            keyActionsController.onActionUp(button, buttons)
 
                         MotionEvent.ACTION_DOWN ->
-                            gestureController.onActionDown()
+                            keyActionsController.onActionDown(buttons, button)
 
-                        MotionEvent.ACTION_MOVE -> {
-                            gestureController.onActionMove(event.x, event.y)
-                        }
+                        MotionEvent.ACTION_MOVE ->
+                            keyActionsController.onActionScroll(button, buttons, x, y)
                     }
                     true
                 }
             }
             buttonMode.setOnClickListener {
                 val textMode = keyActionsController.nextMode()
-                keyActionsController.setMode(textMode,buttons)
+                keyActionsController.setMode(textMode, buttons)
                 (it as Button).text = textMode
             }
             buttonConfirm.setOnClickListener {
-                currentInputConnection.apply {
-                    sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER))
+                val editorInfo = currentInputEditorInfo
+                if (editorInfo != null) {
+                    val imeOptionsActionId = editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
+                    currentInputConnection.apply {
+                        sendKeyEvent(
+                            KeyEvent(
+                                KeyEvent.ACTION_DOWN,
+                                imeOptionsActionId
+                            )
+                        )
+                    }
                 }
             }
             keyActionsController = KeyActionsController(
-                buttons
-                    .associate { it.id to ButtonStates(false, 0L) }
-                    .toMutableMap(),
+                buttons.associate {
+                    it.id to ButtonStates(false, 0L)
+                }.toMutableMap(),
                 currentInputConnection
             )
         }
-    }
-
-    override fun onFinishInput() {
-        super.onFinishInput()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    override fun onWindowHidden() {
-        exitProcess(0)
     }
 }

@@ -1,6 +1,5 @@
 package br.com.fcr.speedkeyboard
 
-import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
@@ -14,8 +13,8 @@ class KeyActionsController(
     private val currentInputConnection: InputConnection
 ) {
     private var chordsManager: ChordsManager = ChordsManager()
-    var chordId = ""
-    var key = ""
+    private var chordId = ""
+    private var key = ""
     private var lastKey = ""
     private var lastChord = ""
     private var isDelete = false
@@ -23,29 +22,12 @@ class KeyActionsController(
     private var isShift = false
     private var buttonsIdManager: ButtonIdsManager = ButtonIdsManager()
     private var isRunnableLongPress = false
-    var otherButton: Button? = null
-    fun onActionDown(buttons: List<Button>, button: Button) {
-        button.isPressed = true
-        buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
-        chordId = buttons.getChordId()
-        Thread(Runnable {
-            val initialTime = System.currentTimeMillis()
-            val initialChord = chordId
-            var executeLongPress = true
-            val timeoutLongPress = 500L
-            while (System.currentTimeMillis() - initialTime < timeoutLongPress) {
-                if (initialChord != buttons.getChordId()) {
-                    executeLongPress = false
-                    break
-                }
-            }
-            if (executeLongPress) {
-                onActionLongPress(buttons)
-            }
-        }).start()
+    private var otherButton: Button? = null
+    private fun isEndCommand(buttons: List<Button>): Boolean {
+        return buttons.none { it.isPressed }
     }
 
-    fun onActionLongPress(buttons: List<Button>) {
+    private fun onActionLongPress(buttons: List<Button>) {
         isRunnableLongPress = true
         Thread(Runnable {
             while (isRunnableLongPress) {
@@ -56,36 +38,35 @@ class KeyActionsController(
         }).start()
     }
 
-    fun onActionUp(button: Button, buttons: List<Button>) {
-        isRunnableLongPress = false
-        isDelete = false
-        button.isPressed = false
-        val state = buttonStates[button.id]!!
-        buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
-        if (isEndCommand(buttons)) {
-            loadKeyByChord(chordId)
-            execute(key)
-        }
-        val instanceOtherButton = otherButton
-        otherButton = null
-        instanceOtherButton?.let {
-            onActionUp(it, buttons)
+    private fun execute(key: String) {
+        currentInputConnection.apply {
+            when {
+                isDelete -> {
+                    deleteSurroundingText(1, 0)
+                }
+
+                else -> {
+                    if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(
+                            lastChord
+                        )
+                    ) {
+                        commitText(key, 1)
+                    } else {
+                        commitText(key, 1)
+                    }
+                }
+            }
         }
     }
 
-    fun isEndCommand(buttons: List<Button>): Boolean {
-        return buttons.none { it.isPressed }
-    }
-
-    fun loadKeyByChord(chord: String) {
+    private fun loadKeyByChord(chord: String) {
+        key = ""
         lastKey = key
         lastChord = chord
+        isDelete = false
         if (!chordsManager.containsKey(chord)) {
-            key = ""
             return
         }
-        isDelete = false
-        key = ""
         var newKeyString = chordsManager.getKey(chord)
         var listCharacters: List<String> = listOf()
         val previousShift = chordsManager.regexIsShiftPair.matches(newKeyString)
@@ -117,51 +98,42 @@ class KeyActionsController(
         }
     }
 
-    fun execute(key: String) {
-        currentInputConnection.apply {
-            when {
-                isDelete -> {
-                    deleteSurroundingText(1, 0)
-                }
-
-                else -> {
-                    if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(
-                            lastChord
-                        )
-                    ) {
-                        commitText(key, 1)
-                    } else {
-                        commitText(key, 1)
-                    }
+    fun onActionDown(buttons: List<Button>, button: Button) {
+        button.isPressed = true
+        buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
+        chordId = buttons.getChordId()
+        Thread(Runnable {
+            val initialTime = System.currentTimeMillis()
+            val initialChord = chordId
+            var executeLongPress = true
+            val timeoutLongPress = 500L
+            while (System.currentTimeMillis() - initialTime < timeoutLongPress) {
+                if (initialChord != buttons.getChordId()) {
+                    executeLongPress = false
+                    break
                 }
             }
-        }
+            if (executeLongPress) {
+                onActionLongPress(buttons)
+            }
+        }).start()
     }
 
-    fun setMode(mode: String, buttons: List<Button>) {
-        chordsManager.setMode(mode)
-        val getKey: (String) -> String = {
-            val key = chordsManager.getKey(it)
-            if (chordsManager.regexIsShiftPair.matches(key)) {
-                key.split("SHIFT").first()
-            } else
-                key
-
+    fun onActionUp(button: Button, buttons: List<Button>) {
+        isRunnableLongPress = false
+        isDelete = false
+        button.isPressed = false
+        val state = buttonStates[button.id]!!
+        buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
+        if (isEndCommand(buttons)) {
+            loadKeyByChord(chordId)
+            execute(key)
         }
-        buttons[0].text = getKey("100000")
-        buttons[1].text = getKey("010000")
-        buttons[2].text = getKey("001000")
-        buttons[3].text = getKey("000100")
-        buttons[4].text = getKey("000010")
-        buttons[5].text = getKey("000001")
-    }
-
-    fun nextMode(): String {
-        val nextMode = when (chordsManager.getMode()) {
-            "a-z" -> "0-9"
-            else -> "a-z"
+        val instanceOtherButton = otherButton
+        otherButton = null
+        instanceOtherButton?.let {
+            onActionUp(it, buttons)
         }
-        return nextMode
     }
 
     fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
@@ -199,5 +171,31 @@ class KeyActionsController(
                 onActionDown(buttons, otherButton!!)
             }
         }
+    }
+
+    fun nextMode(): String {
+        val nextMode = when (chordsManager.getMode()) {
+            "a-z" -> "0-9"
+            else -> "a-z"
+        }
+        return nextMode
+    }
+
+    fun setMode(mode: String, buttons: List<Button>) {
+        chordsManager.setMode(mode)
+        val getKey: (String) -> String = {
+            val key = chordsManager.getKey(it)
+            if (chordsManager.regexIsShiftPair.matches(key)) {
+                key.split("SHIFT").first()
+            } else
+                key
+
+        }
+        buttons[0].text = getKey("100000")
+        buttons[1].text = getKey("010000")
+        buttons[2].text = getKey("001000")
+        buttons[3].text = getKey("000100")
+        buttons[4].text = getKey("000010")
+        buttons[5].text = getKey("000001")
     }
 }
