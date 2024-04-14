@@ -1,8 +1,12 @@
 package br.com.fcr.speedkeyboard
 
+import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
+import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
 class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonStates>) {
@@ -15,6 +19,8 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
     private var isDelete = false
     private var isCapslock = false
     private var isShift = false
+    private var buttonsIdManager: ButtonIdsManager = ButtonIdsManager()
+    var otherButton: Button? = null
     private fun checkTimeoutForDisableButtons(buttons: List<Button>) {
         val currencyTime = System.currentTimeMillis()
         buttons.filter { it.isPressed }.forEach {
@@ -41,6 +47,7 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
         button.isPressed = false
         val state = buttonStates[button.id]!!
         buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
+        otherButton = null
     }
 
     fun isEndCommand(buttons: List<Button>): Boolean {
@@ -107,14 +114,53 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
             }
         }
     }
-    fun setMode(mode:String){
+
+    fun setMode(mode: String) {
         chordsManager.setMode(mode)
     }
+
     fun nextMode(): String {
-        val nextMode = when (chordsManager.getMode()){
+        val nextMode = when (chordsManager.getMode()) {
             "a-z" -> "0-9"
             else -> "a-z"
         }
         return nextMode
+    }
+
+    fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
+        val btnW = button.width
+        val btnH = button.height
+        val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
+        val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
+        val distance = sqrt(
+            (currentClick.first - initClick.first).pow(2) +
+            (currentClick.second - initClick.second).pow(2)
+        )
+        val limitDistance = sqrt(
+            (initClick.first - btnW).pow(2) +
+            (initClick.second - btnH).pow(2)
+        )
+
+        if (
+            (
+                x > btnW ||
+                x < 0 ||
+                y > btnH ||
+                y < 0
+            ) &&
+                    distance > limitDistance
+        ) {
+            val angle = buttonsIdManager.calcAngle(
+                initClick,
+                currentClick
+            )
+            val angleRounded45 = buttonsIdManager.getRound45(angle)
+            val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
+            val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
+            if (otherButton == null) {
+                otherButton = buttons.find { it.id == newBtnId }
+                otherButton?.isPressed = true
+            }
+        }
     }
 }

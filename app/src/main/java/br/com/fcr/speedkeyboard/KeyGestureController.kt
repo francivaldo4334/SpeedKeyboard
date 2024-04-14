@@ -1,19 +1,14 @@
 package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.view.GestureDetector
-import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
-import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
-import kotlin.math.abs
 
 interface KeyGestureControllerCallback {
     fun onActionUp(button: Button)
     fun onActionDown(button: Button)
     fun onActionLongPress()
-    fun onActionScroll(button: Button)
+    fun onActionScroll(button: Button, x: Float, y: Float)
 }
 
 @SuppressLint("ClickableViewAccessibility")
@@ -27,7 +22,11 @@ class KeyGestureController(private val callback: KeyGestureControllerCallback) {
         callback.onActionUp(view as Button)
     }
 
-    fun onActionDown(){
+    fun onActionDown() {
         callback.onActionDown(view as Button)
+    }
+
+    fun onActionMove(x: Float, y: Float) {
+        callback.onActionScroll(view as Button, x, y)
     }
 }
