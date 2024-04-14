@@ -10,7 +10,6 @@ import kotlin.math.sqrt
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
 class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonStates>) {
     private var chordsManager: ChordsManager = ChordsManager()
-    private val delayTouchTime = 500
     var chordId = ""
     var key = ""
     private var lastKey = ""
@@ -20,19 +19,6 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
     private var isShift = false
     private var buttonsIdManager: ButtonIdsManager = ButtonIdsManager()
     var otherButton: Button? = null
-    private fun checkTimeoutForDisableButtons(buttons: List<Button>) {
-        val currencyTime = System.currentTimeMillis()
-        buttons.filter { it.isPressed }.forEach {
-            val state = buttonStates[it.id]!!
-            val deltaTime = currencyTime - state.initialPressedTime
-            if (deltaTime >= delayTouchTime && state.isActivated) {
-                it.isPressed = false
-                buttonStates[it.id] = ButtonStates(false, currencyTime)
-                chordId = buttons.getChordId()
-            }
-        }
-    }
-
     fun onActionDown(buttons: List<Button>, button: Button) {
         button.isPressed = true
         buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
@@ -40,8 +26,7 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
         loadKeyByChord(chordId)
     }
 
-    fun onActionUp(button: Button, buttons: List<Button>) {
-        checkTimeoutForDisableButtons(buttons)
+    fun onActionUp(button: Button) {
         isDelete = false
         button.isPressed = false
         val state = buttonStates[button.id]!!

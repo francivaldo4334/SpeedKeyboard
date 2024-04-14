@@ -33,7 +33,7 @@ class KeyboardService() : InputMethodService() {
             val gestureController = KeyGestureController(object : KeyGestureControllerCallback {
                 override fun onActionUp(button: Button) {
                     isRunnableLongPress = false
-                    keyActionsController.onActionUp(button, buttons)
+                    keyActionsController.onActionUp(button)
                     if (keyActionsController.isEndCommand(buttons)) {
                         keyActionsController.loadKeyByChord(keyActionsController.chordId)
                         keyActionsController.execute(
