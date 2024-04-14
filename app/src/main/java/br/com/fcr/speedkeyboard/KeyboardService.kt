@@ -62,7 +62,6 @@ class KeyboardService() : InputMethodService() {
                             }
                         }
                         if (executeLongPress) {
-                            keyActionsController.loadKeyByChord(initialChord)
                             onActionLongPress()
                         }
                     }).start()
@@ -72,6 +71,7 @@ class KeyboardService() : InputMethodService() {
                     isRunnableLongPress = true
                     Thread(Runnable {
                         while (isRunnableLongPress) {
+                            keyActionsController.loadKeyByChord(buttons.getChordId())
                             keyActionsController.execute(
                                 keyActionsController.key,
                                 currentInputConnection

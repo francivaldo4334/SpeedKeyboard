@@ -1,5 +1,6 @@
 package br.com.fcr.speedkeyboard
 
+import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
@@ -23,7 +24,6 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
         button.isPressed = true
         buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
         chordId = buttons.getChordId()
-        loadKeyByChord(chordId)
     }
 
     fun onActionUp(button: Button) {
@@ -59,6 +59,7 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
             }
 
             "SHIFT" -> {
+                Log.d("KEY_MODE","oK")
                 if (isCapslock) {
                     isCapslock = false
                 } else if (isShift) {
