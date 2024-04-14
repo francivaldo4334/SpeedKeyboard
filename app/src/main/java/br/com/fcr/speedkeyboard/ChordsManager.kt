@@ -87,18 +87,22 @@ class ChordsManager {
         }
     }
 
-    fun getPreviousKeys(chord: String): List<String> {
+    fun getPreviousKeys(chord: String): List<Pair<String, String>> {
         if (Regex("[0-1]{6}").matches(chord)) {
             val indexContains = buildList<Int> {
                 chord.forEachIndexed { index, c ->
                     if (c == '1') add(index)
                 }
             }
-            return getMapKeys().filter {binding ->
+            return getMapKeys().filter { binding ->
                 binding.key != chord &&
-                indexContains.none { binding.key[it] == '0' }
-            }.map {
-                it.key
+                        indexContains.none { binding.key[it] == '0' }
+            }.map { char ->
+                var previouskey = char.key
+                indexContains.forEach {
+                    previouskey = previouskey.replaceRange(it, it + 1, "0")
+                }
+                Pair(char.key, previouskey)
             }
         }
         return emptyList()
