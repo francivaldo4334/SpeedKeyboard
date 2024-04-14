@@ -2,10 +2,12 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import kotlin.system.exitProcess
 
 
 class KeyboardService() : InputMethodService() {
@@ -76,5 +78,17 @@ class KeyboardService() : InputMethodService() {
                 currentInputConnection
             )
         }
+    }
+
+    override fun onFinishInput() {
+        super.onFinishInput()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
+    override fun onWindowHidden() {
+        exitProcess(0)
     }
 }

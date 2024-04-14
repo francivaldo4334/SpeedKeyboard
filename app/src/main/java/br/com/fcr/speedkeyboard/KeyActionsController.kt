@@ -45,21 +45,18 @@ class KeyActionsController(
         }).start()
     }
 
-    fun onActionLongPress(buttons: List<Button>){
+    fun onActionLongPress(buttons: List<Button>) {
         isRunnableLongPress = true
         Thread(Runnable {
             while (isRunnableLongPress) {
                 loadKeyByChord(buttons.getChordId())
-                execute(
-                    key,
-                    currentInputConnection
-                )
+                execute(key)
                 Thread.sleep(50)
             }
         }).start()
     }
 
-    fun onActionUp(button: Button,buttons: List<Button>) {
+    fun onActionUp(button: Button, buttons: List<Button>) {
         isRunnableLongPress = false
         isDelete = false
         button.isPressed = false
@@ -67,15 +64,12 @@ class KeyActionsController(
         buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
         if (isEndCommand(buttons)) {
             loadKeyByChord(chordId)
-            execute(
-                key,
-                currentInputConnection
-            )
+            execute(key)
         }
         val instanceOtherButton = otherButton
         otherButton = null
         instanceOtherButton?.let {
-            onActionUp(it,buttons)
+            onActionUp(it, buttons)
         }
     }
 
@@ -105,7 +99,6 @@ class KeyActionsController(
             }
 
             "SHIFT" -> {
-                Log.d("KEY_MODE","oK")
                 if (isCapslock) {
                     isCapslock = false
                 } else if (isShift) {
@@ -124,7 +117,7 @@ class KeyActionsController(
         }
     }
 
-    fun execute(key: String, currentInputConnection: InputConnection) {
+    fun execute(key: String) {
         currentInputConnection.apply {
             when {
                 isDelete -> {
@@ -145,14 +138,13 @@ class KeyActionsController(
         }
     }
 
-    fun setMode(mode: String,buttons: List<Button>) {
+    fun setMode(mode: String, buttons: List<Button>) {
         chordsManager.setMode(mode)
         val getKey: (String) -> String = {
             val key = chordsManager.getKey(it)
-            if (chordsManager.regexIsShiftPair.matches(key)){
+            if (chordsManager.regexIsShiftPair.matches(key)) {
                 key.split("SHIFT").first()
-            }
-            else
+            } else
                 key
 
         }
