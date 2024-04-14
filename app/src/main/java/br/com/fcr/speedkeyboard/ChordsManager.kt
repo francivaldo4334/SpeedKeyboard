@@ -4,7 +4,7 @@ class ChordsManager {
     val regexIsShiftPair = Regex("^(.)SHIFT(.)$")
     val regexIsDiacriticChord = Regex("^111[0-1]+$")
     private var mode = "a-z"
-    private val numberChords = buildMap<String,String> {
+    private val numberChords = buildMap<String, String> {
         set("100000", "1SHIFT!")
         set("110000", "2SHIFT@")
         set("010000", "3SHIFT#")
@@ -48,35 +48,60 @@ class ChordsManager {
         set("000111", " ")
         set("100001", "SHIFT")
         set("001100", "DELETE")
-        set("011001","/SHIFT?")
-        set("101001",";SHIFT:")
-        set("001101","+SHIFT=")
-        set("001011","-SHIFT_")
-        set("111100","~SHIFT^")
-        set("111010","´SHIFT`")
-        set("101100","ç")
+        set("011001", "/SHIFT?")
+        set("101001", ";SHIFT:")
+        set("001101", "+SHIFT=")
+        set("001011", "-SHIFT_")
+        set("111100", "~SHIFT^")
+        set("111010", "´SHIFT`")
+        set("101100", "ç")
     }
 
-    fun setMode(mode:String){
+    fun setMode(mode: String) {
         this.mode = mode
     }
+
     fun getMode(): String {
         return mode
     }
 
     fun getKey(chord: String): String {
-        return when (mode){
+        return when (mode) {
             "a-z" -> charChords[chord] ?: ""
             "0-9" -> numberChords[chord] ?: ""
             else -> ""
         }
     }
 
+    fun getMapKeys() = when (mode) {
+        "a-z" -> charChords
+        "0-9" -> numberChords
+        else -> emptyMap()
+    }
+
     fun containsKey(chord: String): Boolean {
-        return when (mode){
+        return when (mode) {
             "a-z" -> charChords.containsKey(chord)
             "0-9" -> numberChords.containsKey(chord)
             else -> false
         }
+    }
+
+    fun getPreviousKeys(chord: String): List<String> {
+        if (Regex("[0-1]{6}").matches(chord)) {
+            val indexContains = buildList<Int> {
+                chord.forEachIndexed { index, c ->
+                    if (c == '1') add(index)
+                }
+            }
+            println(indexContains)
+            return getMapKeys().filter {binding ->
+                indexContains.none { binding.key[it] == '0' }
+            }.map {
+                it.key
+            }
+//            return response
+        }
+        return emptyList()
     }
 }
