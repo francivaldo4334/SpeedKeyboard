@@ -33,6 +33,7 @@ class KeyboardService() : InputMethodService() {
             buttons.forEach {
                 it.setOnTouchListener { v, event ->
                     val button = v as Button
+                    keyActionsController.setInputConnection(currentInputConnection)
                     when (event.action) {
                         MotionEvent.ACTION_UP ->
                             keyActionsController.onActionUp(button, buttons)
@@ -70,7 +71,6 @@ class KeyboardService() : InputMethodService() {
                 buttons.associate {
                     it.id to ButtonStates(false, 0L)
                 }.toMutableMap(),
-                currentInputConnection
             )
         }
     }

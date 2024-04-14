@@ -11,7 +11,6 @@ import kotlin.math.sqrt
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
 class KeyActionsController(
     private val buttonStates: MutableMap<Int, ButtonStates>,
-    private val currentInputConnection: InputConnection
 ) {
     private var chordsManager: ChordsManager = ChordsManager()
     private var chordId = ""
@@ -24,6 +23,10 @@ class KeyActionsController(
     private var buttonsIdManager: ButtonIdsManager = ButtonIdsManager()
     private var isRunnableLongPress = false
     private var otherButton: Button? = null
+    private var currentInputConnection: InputConnection? = null
+    fun setInputConnection(inputConnection: InputConnection){
+        currentInputConnection = inputConnection
+    }
     private fun isEndCommand(buttons: List<Button>): Boolean {
         return buttons.none { it.isPressed }
     }
@@ -40,7 +43,7 @@ class KeyActionsController(
     }
 
     private fun execute(key: String) {
-        currentInputConnection.apply {
+        currentInputConnection?.apply {
             when {
                 isDelete -> {
                     deleteSurroundingText(1, 0)
