@@ -2,6 +2,7 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -39,8 +40,9 @@ class KeyboardService() : InputMethodService() {
                         MotionEvent.ACTION_DOWN ->
                             keyActionsController.onActionDown(buttons, button)
 
-                        MotionEvent.ACTION_MOVE ->
-                            keyActionsController.onActionScroll(button, buttons, x, y)
+                        MotionEvent.ACTION_MOVE -> {
+                            keyActionsController.onActionScroll(button, buttons, event.x, event.y)
+                        }
                     }
                     true
                 }
