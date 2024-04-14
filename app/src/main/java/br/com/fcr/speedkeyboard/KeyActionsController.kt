@@ -1,6 +1,5 @@
 package br.com.fcr.speedkeyboard
 
-import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
@@ -133,21 +132,21 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
         val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
         val distance = sqrt(
             (currentClick.first - initClick.first).pow(2) +
-            (currentClick.second - initClick.second).pow(2)
+                    (currentClick.second - initClick.second).pow(2)
         )
         val limitDistance = sqrt(
             (initClick.first - btnW).pow(2) +
-            (initClick.second - btnH).pow(2)
+                    (initClick.second - btnH).pow(2)
         )
 
         if (
             (
-                x > btnW ||
-                x < 0 ||
-                y > btnH ||
-                y < 0
-            ) &&
-                    distance > limitDistance
+                    x > btnW ||
+                            x < 0 ||
+                            y > btnH ||
+                            y < 0
+                    ) &&
+            distance > limitDistance
         ) {
             val angle = buttonsIdManager.calcAngle(
                 initClick,
@@ -158,7 +157,7 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
             val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
             if (otherButton == null) {
                 otherButton = buttons.find { it.id == newBtnId }
-                onActionDown(buttons,otherButton!!)
+                onActionDown(buttons, otherButton!!)
             }
         }
     }

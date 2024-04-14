@@ -66,10 +66,6 @@ class KeyboardService() : InputMethodService() {
                             onActionLongPress()
                         }
                     }).start()
-
-//                    keyActionsController.otherButton?.let {
-//                        onActionDown(it)
-//                    }
                 }
 
                 override fun onActionLongPress() {
