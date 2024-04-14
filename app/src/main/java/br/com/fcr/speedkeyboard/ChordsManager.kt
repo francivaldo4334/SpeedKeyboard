@@ -96,7 +96,7 @@ class ChordsManager {
         }
     }
 
-    fun getPreviousKeys(chord: String): List<Pair<String, String>> {
+    fun getPreviousAndDisableKeysKeys(chord: String): List<Pair<String, String>> {
         if (Regex("[0-1]{6}").matches(chord)) {
             val indexContains = buildList<Int> {
                 chord.forEachIndexed { index, c ->
