@@ -94,13 +94,12 @@ class ChordsManager {
                     if (c == '1') add(index)
                 }
             }
-            println(indexContains)
             return getMapKeys().filter {binding ->
+                binding.key != chord &&
                 indexContains.none { binding.key[it] == '0' }
             }.map {
                 it.key
             }
-//            return response
         }
         return emptyList()
     }
