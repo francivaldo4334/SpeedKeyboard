@@ -7,7 +7,6 @@ import android.widget.Button
 interface KeyGestureControllerCallback {
     fun onActionUp(button: Button)
     fun onActionDown(button: Button)
-    fun onActionLongPress()
     fun onActionScroll(button: Button, x: Float, y: Float)
 }
 

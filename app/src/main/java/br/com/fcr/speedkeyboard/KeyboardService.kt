@@ -6,13 +6,11 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
-import br.com.fcr.speedkeyboard.utils.getChordId
 
 
 class KeyboardService() : InputMethodService() {
     private lateinit var buttons: List<Button>
     private lateinit var keyActionsController: KeyActionsController
-    private var isRunnableLongPress = false
     private lateinit var buttonMode: Button
     private lateinit var buttonConfirm: Button
 
@@ -32,54 +30,11 @@ class KeyboardService() : InputMethodService() {
 
             val gestureController = KeyGestureController(object : KeyGestureControllerCallback {
                 override fun onActionUp(button: Button) {
-                    isRunnableLongPress = false
-                    keyActionsController.onActionUp(button)
-                    if (keyActionsController.isEndCommand(buttons)) {
-                        keyActionsController.loadKeyByChord(keyActionsController.chordId)
-                        keyActionsController.execute(
-                            keyActionsController.key,
-                            currentInputConnection
-                        )
-                    }
-                    val instanceOtherButton = keyActionsController.otherButton
-                    keyActionsController.otherButton = null
-                    instanceOtherButton?.let {
-                        onActionUp(it)
-                    }
+                    keyActionsController.onActionUp(button,buttons)
                 }
 
                 override fun onActionDown(button: Button) {
                     keyActionsController.onActionDown(buttons, button)
-                    Thread(Runnable {
-                        val initialTime = System.currentTimeMillis()
-                        val initialChord = keyActionsController.chordId
-                        var executeLongPress = true
-                        val timeoutLongPress = 500L
-                        while (System.currentTimeMillis() - initialTime < timeoutLongPress) {
-                            if (initialChord != buttons.getChordId()) {
-                                executeLongPress = false
-                                break
-                            }
-                        }
-                        if (executeLongPress) {
-                            onActionLongPress()
-                        }
-                    }).start()
-                }
-
-                override fun onActionLongPress() {
-                    isRunnableLongPress = true
-                    Thread(Runnable {
-                        while (isRunnableLongPress) {
-                            keyActionsController.loadKeyByChord(buttons.getChordId())
-                            keyActionsController.execute(
-                                keyActionsController.key,
-                                currentInputConnection
-                            )
-                            Thread.sleep(50)
-                        }
-                        stopSelf()
-                    }).start()
                 }
 
                 override fun onActionScroll(button: Button, x: Float, y: Float) {
@@ -118,7 +73,8 @@ class KeyboardService() : InputMethodService() {
             keyActionsController = KeyActionsController(
                 buttons
                     .associate { it.id to ButtonStates(false, 0L) }
-                    .toMutableMap()
+                    .toMutableMap(),
+                currentInputConnection
             )
         }
     }

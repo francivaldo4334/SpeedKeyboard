@@ -9,7 +9,10 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
-class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonStates>) {
+class KeyActionsController(
+    private val buttonStates: MutableMap<Int, ButtonStates>,
+    private val currentInputConnection: InputConnection
+) {
     private var chordsManager: ChordsManager = ChordsManager()
     var chordId = ""
     var key = ""
@@ -19,18 +22,61 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
     private var isCapslock = false
     private var isShift = false
     private var buttonsIdManager: ButtonIdsManager = ButtonIdsManager()
+    private var isRunnableLongPress = false
     var otherButton: Button? = null
     fun onActionDown(buttons: List<Button>, button: Button) {
         button.isPressed = true
         buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
         chordId = buttons.getChordId()
+        Thread(Runnable {
+            val initialTime = System.currentTimeMillis()
+            val initialChord = chordId
+            var executeLongPress = true
+            val timeoutLongPress = 500L
+            while (System.currentTimeMillis() - initialTime < timeoutLongPress) {
+                if (initialChord != buttons.getChordId()) {
+                    executeLongPress = false
+                    break
+                }
+            }
+            if (executeLongPress) {
+                onActionLongPress(buttons)
+            }
+        }).start()
     }
 
-    fun onActionUp(button: Button) {
+    fun onActionLongPress(buttons: List<Button>){
+        isRunnableLongPress = true
+        Thread(Runnable {
+            while (isRunnableLongPress) {
+                loadKeyByChord(buttons.getChordId())
+                execute(
+                    key,
+                    currentInputConnection
+                )
+                Thread.sleep(50)
+            }
+        }).start()
+    }
+
+    fun onActionUp(button: Button,buttons: List<Button>) {
+        isRunnableLongPress = false
         isDelete = false
         button.isPressed = false
         val state = buttonStates[button.id]!!
         buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
+        if (isEndCommand(buttons)) {
+            loadKeyByChord(chordId)
+            execute(
+                key,
+                currentInputConnection
+            )
+        }
+        val instanceOtherButton = otherButton
+        otherButton = null
+        instanceOtherButton?.let {
+            onActionUp(it,buttons)
+        }
     }
 
     fun isEndCommand(buttons: List<Button>): Boolean {
