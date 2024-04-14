@@ -60,9 +60,8 @@ class KeyboardService() : InputMethodService() {
                 }
             }
             buttonMode.setOnClickListener {
-                var textMode = keyActionsController.nextMode()
-                keyActionsController.setMode(textMode)
-                textMode = keyActionsController.nextMode()
+                val textMode = keyActionsController.nextMode()
+                keyActionsController.setMode(textMode,buttons)
                 (it as Button).text = textMode
             }
             buttonConfirm.setOnClickListener {

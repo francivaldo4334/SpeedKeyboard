@@ -145,8 +145,23 @@ class KeyActionsController(
         }
     }
 
-    fun setMode(mode: String) {
+    fun setMode(mode: String,buttons: List<Button>) {
         chordsManager.setMode(mode)
+        val getKey: (String) -> String = {
+            val key = chordsManager.getKey(it)
+            if (chordsManager.regexIsShiftPair.matches(key)){
+                key.split("SHIFT").first()
+            }
+            else
+                key
+
+        }
+        buttons[0].text = getKey("100000")
+        buttons[1].text = getKey("010000")
+        buttons[2].text = getKey("001000")
+        buttons[3].text = getKey("000100")
+        buttons[4].text = getKey("000010")
+        buttons[5].text = getKey("000001")
     }
 
     fun nextMode(): String {
