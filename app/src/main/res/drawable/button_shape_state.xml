@@ -4,5 +4,7 @@
         android:state_pressed="true"/>
     <item android:drawable="@drawable/button_up_ui"
         android:state_focused="true"/>
+    <item android:drawable="@drawable/button_selected"
+        android:state_selected="true"/>
     <item android:drawable="@drawable/button_up_ui"/>
 </selector>

@@ -121,6 +121,14 @@ class KeyActionsController(
                 onActionLongPress(buttons)
             }
         }).start()
+        val previousChords = chordsManager.getPreviousKeys(chordId)
+        previousChords.forEach {pair ->
+            chordsManager.getButtonIdByChord(pair.second)?.let {btnId ->
+                buttons.find { it.id == btnId }?.let {
+                    it.isSelected = true
+                }
+            }
+        }
     }
 
     fun onActionUp(button: Button, buttons: List<Button>) {
@@ -137,6 +145,9 @@ class KeyActionsController(
         otherButton = null
         instanceOtherButton?.let {
             onActionUp(it, buttons)
+        }
+        buttons.forEach {
+            it.isSelected = false
         }
     }
 

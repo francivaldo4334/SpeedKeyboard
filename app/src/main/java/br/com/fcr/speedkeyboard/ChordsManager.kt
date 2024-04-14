@@ -107,4 +107,16 @@ class ChordsManager {
         }
         return emptyList()
     }
+
+    fun getButtonIdByChord(chord: String): Int? {
+        return when(chord){
+            "100000" -> R.id.btn0
+            "010000" -> R.id.btn1
+            "001000" -> R.id.btn2
+            "000100" -> R.id.btn3
+            "000010" -> R.id.btn4
+            "000001" -> R.id.btn5
+            else -> null
+        }
+    }
 }
