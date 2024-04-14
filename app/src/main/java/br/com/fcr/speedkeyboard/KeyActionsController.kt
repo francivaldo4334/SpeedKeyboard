@@ -9,7 +9,6 @@ import kotlin.math.sqrt
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
 class KeyActionsController(
-    private val buttonStates: MutableMap<Int, ButtonStates>,
 ) {
     private var chordsManager: ChordsManager = ChordsManager()
     private var chordId = ""
@@ -95,43 +94,53 @@ class KeyActionsController(
 
     fun onActionDown(buttons: List<Button>, button: Button) {
         button.isPressed = true
-        buttonStates[button.id] = ButtonStates(false, System.currentTimeMillis())
         chordId = buttons.getChordId()
-        Thread(Runnable {
-            val initialTime = System.currentTimeMillis()
-            val initialChord = chordId
-            var executeLongPress = true
-            val timeoutLongPress = 500L
-            while (System.currentTimeMillis() - initialTime < timeoutLongPress) {
-                if (initialChord != buttons.getChordId()) {
-                    executeLongPress = false
-                    break
+        if (chordsManager.getKey(chordId) == "DELETE") {
+            Thread(Runnable {
+                val initialTime = System.currentTimeMillis()
+                val initialChord = chordId
+                var executeLongPress = true
+                val timeoutLongPress = 500L
+                while (System.currentTimeMillis() - initialTime < timeoutLongPress) {
+                    if (initialChord != buttons.getChordId()) {
+                        executeLongPress = false
+                        break
+                    }
+                }
+                if (executeLongPress) {
+                    onActionLongPress(buttons)
+                }
+            }).start()
+        }
+        loadPreviousKeys(buttons)
+    }
+    private fun loadPreviousKeys(buttons: List<Button>){
+        if (buttons.any { it.isPressed }){
+            val previousChords = chordsManager.getPreviousAndDisableKeysKeys(chordId)
+            buttons.forEach {btn ->
+                var isSelected = false
+                var chord = ""
+                for(it in previousChords) {
+                    val buttonIdChord = chordsManager.getButtonIdByChord(it.second)
+                    if (buttonIdChord == btn.id){
+                        chord = it.first
+                        isSelected = true
+                        break
+                    }
+                }
+                if (isSelected){
+                    btn.isSelected = true
+                    btn.text = chordsManager.getKey(chord, isCapslock, isShift)
+                }
+                else if (!btn.isPressed){
+                    btn.isSelected = false
+                    btn.text = ""
                 }
             }
-            if (executeLongPress) {
-                onActionLongPress(buttons)
-            }
-        }).start()
-        val previousChords = chordsManager.getPreviousAndDisableKeysKeys(chordId)
-        buttons.forEach {btn ->
-            var isSelected = false
-            var chord = ""
-            for(it in previousChords) {
-                val buttonIdChord = chordsManager.getButtonIdByChord(it.second)
-                if (buttonIdChord == btn.id){
-                    chord = it.first
-                    isSelected = true
-                    break
-                }
-            }
-            if (isSelected){
-                btn.isSelected = true
-                btn.text = chordsManager.getKey(chord, isCapslock, isShift)
-            }
-            else if (!btn.isPressed){
-                btn.isSelected = false
-                btn.text = ""
-            }
+        }
+        else {
+            val textMode = chordsManager.getMode()
+            setMode(textMode, buttons)
         }
     }
 
@@ -139,8 +148,6 @@ class KeyActionsController(
         isRunnableLongPress = false
         isDelete = false
         button.isPressed = false
-        val state = buttonStates[button.id]!!
-        buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
         if (isEndCommand(buttons)) {
             loadKeyByChord(chordId)
             execute(key)
@@ -150,11 +157,7 @@ class KeyActionsController(
         instanceOtherButton?.let {
             onActionUp(it, buttons)
         }
-        buttons.forEach {
-            it.isSelected = false
-        }
-        val textMode = chordsManager.getMode()
-        setMode(textMode, buttons)
+        loadPreviousKeys(buttons)
     }
 
     fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
@@ -181,6 +184,12 @@ class KeyActionsController(
                 onActionDown(buttons, otherButton!!)
             }
         }
+        else {
+            otherButton?.let {
+                onActionUp(it,buttons)
+            }
+            otherButton = null
+        }
     }
 
     fun nextMode(): String {
@@ -202,10 +211,16 @@ class KeyActionsController(
 
         }
         buttons[0].text = getKey("100000")
+        buttons[0].isSelected = false
         buttons[1].text = getKey("010000")
+        buttons[1].isSelected = false
         buttons[2].text = getKey("001000")
+        buttons[2].isSelected = false
         buttons[3].text = getKey("000100")
+        buttons[3].isSelected = false
         buttons[4].text = getKey("000010")
+        buttons[4].isSelected = false
         buttons[5].text = getKey("000001")
+        buttons[5].isSelected = false
     }
 }

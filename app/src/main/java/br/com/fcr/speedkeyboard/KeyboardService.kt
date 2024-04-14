@@ -2,7 +2,6 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
-import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -67,11 +66,7 @@ class KeyboardService() : InputMethodService() {
                     }
                 }
             }
-            keyActionsController = KeyActionsController(
-                buttons.associate {
-                    it.id to ButtonStates(false, 0L)
-                }.toMutableMap(),
-            )
+            keyActionsController = KeyActionsController()
         }
     }
 }
