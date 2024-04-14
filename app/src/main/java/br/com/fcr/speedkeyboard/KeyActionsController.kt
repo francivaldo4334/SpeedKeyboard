@@ -47,11 +47,6 @@ class KeyActionsController(private val buttonStates: MutableMap<Int, ButtonState
         button.isPressed = false
         val state = buttonStates[button.id]!!
         buttonStates[button.id] = ButtonStates(true, state.initialPressedTime)
-        val _otherButton = otherButton
-        otherButton = null
-        _otherButton?.let {
-            onActionUp(it,buttons)
-        }
     }
 
     fun isEndCommand(buttons: List<Button>): Boolean {

@@ -41,6 +41,11 @@ class KeyboardService() : InputMethodService() {
                             currentInputConnection
                         )
                     }
+                    val instanceOtherButton = keyActionsController.otherButton
+                    keyActionsController.otherButton = null
+                    instanceOtherButton?.let {
+                        onActionUp(it)
+                    }
                 }
 
                 override fun onActionDown(button: Button) {
