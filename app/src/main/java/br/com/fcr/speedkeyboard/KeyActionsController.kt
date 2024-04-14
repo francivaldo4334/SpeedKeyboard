@@ -1,6 +1,5 @@
 package br.com.fcr.speedkeyboard
 
-import android.util.Log
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
@@ -24,9 +23,10 @@ class KeyActionsController(
     private var isRunnableLongPress = false
     private var otherButton: Button? = null
     private var currentInputConnection: InputConnection? = null
-    fun setInputConnection(inputConnection: InputConnection){
+    fun setInputConnection(inputConnection: InputConnection) {
         currentInputConnection = inputConnection
     }
+
     private fun isEndCommand(buttons: List<Button>): Boolean {
         return buttons.none { it.isPressed }
     }
@@ -71,14 +71,7 @@ class KeyActionsController(
         if (!chordsManager.containsKey(chord)) {
             return
         }
-        var newKeyString = chordsManager.getKey(chord)
-        var listCharacters: List<String> = listOf()
-        val previousShift = chordsManager.regexIsShiftPair.matches(newKeyString)
-        if (previousShift) {
-            listCharacters = newKeyString.split("SHIFT")
-            newKeyString = listCharacters.first()
-        }
-        when (newKeyString) {
+        when (val newKeyString = chordsManager.getKey(chord,isCapslock,isShift)) {
             "DELETE" -> {
                 isDelete = true
             }
@@ -93,10 +86,8 @@ class KeyActionsController(
                 }
             }
 
-            else -> if (isShift || isCapslock) {
-                key = if (previousShift) listCharacters.last() else newKeyString.uppercase()
+            else -> {
                 isShift = false
-            } else {
                 key = newKeyString
             }
         }
@@ -122,10 +113,11 @@ class KeyActionsController(
             }
         }).start()
         val previousChords = chordsManager.getPreviousKeys(chordId)
-        previousChords.forEach {pair ->
-            chordsManager.getButtonIdByChord(pair.second)?.let {btnId ->
+        previousChords.forEach { pair ->
+            chordsManager.getButtonIdByChord(pair.second)?.let { btnId ->
                 buttons.find { it.id == btnId }?.let {
                     it.isSelected = true
+
                 }
             }
         }

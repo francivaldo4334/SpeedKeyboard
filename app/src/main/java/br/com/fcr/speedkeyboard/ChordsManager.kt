@@ -65,12 +65,21 @@ class ChordsManager {
         return mode
     }
 
-    fun getKey(chord: String): String {
-        return when (mode) {
+    fun getKey(chord: String, isCapslock: Boolean = false, isShift:Boolean = false): String {
+        var newKeyString =  when (mode) {
             "a-z" -> charChords[chord] ?: ""
             "0-9" -> numberChords[chord] ?: ""
             else -> ""
         }
+        var listCharacters: List<String> = listOf()
+        val previousShift = regexIsShiftPair.matches(newKeyString)
+        if (previousShift) {
+            listCharacters = newKeyString.split("SHIFT")
+            newKeyString = listCharacters.first()
+        }
+        if (isShift || isCapslock)
+            newKeyString = if (previousShift) listCharacters.last() else newKeyString.uppercase()
+        return newKeyString
     }
 
     fun getMapKeys() = when (mode) {
