@@ -66,7 +66,13 @@ class KeyboardService() : InputMethodService() {
                     }
                 }
             }
-            keyActionsController = KeyActionsController()
+            val othersButtons: MutableMap<Int,Button?> = mutableMapOf()
+            buttons.forEach {
+                othersButtons[it.id] = null
+            }
+            keyActionsController = KeyActionsController(
+                othersButtons
+            )
         }
     }
 }

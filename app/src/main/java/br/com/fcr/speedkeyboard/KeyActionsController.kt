@@ -8,8 +8,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
-class KeyActionsController(
-) {
+class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
     private var chordsManager: ChordsManager = ChordsManager()
     private var chordId = ""
     private var key = ""
@@ -20,7 +19,6 @@ class KeyActionsController(
     private var isShift = false
     private var buttonsIdManager: ButtonIdsManager = ButtonIdsManager()
     private var isRunnableLongPress = false
-    private var otherButton: Button? = null
     private var currentInputConnection: InputConnection? = null
     fun setInputConnection(inputConnection: InputConnection) {
         currentInputConnection = inputConnection
@@ -144,8 +142,8 @@ class KeyActionsController(
             val textMode = chordsManager.getMode()
             setMode(textMode, buttons)
         }
-        val instanceOtherButton = otherButton
-        otherButton = null
+        val instanceOtherButton = othersButtons[button.id]
+        othersButtons[button.id] = null
         instanceOtherButton?.let {
             onActionUp(it, buttons)
         }
@@ -156,29 +154,21 @@ class KeyActionsController(
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
         val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
-        val distance = sqrt(
-            (currentClick.first - initClick.first).pow(2) +
-                    (currentClick.second - initClick.second).pow(2)
-        )
-        val limitDistance = sqrt(
-            (initClick.first - btnW).pow(2) +
-                    (initClick.second - btnH).pow(2)
-        )
 
-        if ((x > btnW || x < 0 || y > btnH || y < 0) && distance > limitDistance) {
+        if ((x > btnW || x < 0 || y > btnH || y < 0)) {
             val angle = buttonsIdManager.calcAngle(initClick, currentClick)
             val angleRounded45 = buttonsIdManager.getRound45(angle)
             val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
             val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
-            if (otherButton == null) {
-                otherButton = buttons.find { it.id == newBtnId }
-                onActionDown(buttons, otherButton!!)
+            if (othersButtons[button.id] == null) {
+                othersButtons[button.id] = buttons.find { it.id == newBtnId }
+                onActionDown(buttons, othersButtons[button.id]!!)
             }
         } else {
-            otherButton?.let {
+            othersButtons[button.id]?.let {
                 onActionUp(it, buttons)
             }
-            otherButton = null
+            othersButtons[button.id] = null
         }
     }
 
