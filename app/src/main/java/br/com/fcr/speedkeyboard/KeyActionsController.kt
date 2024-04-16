@@ -30,7 +30,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
             while (isRunnableLongPress) {
                 loadKeyByChord(buttons.getChordId())
                 execute(key)
-                Thread.sleep(50)
+                Thread.sleep(10)
             }
         }).start()
     }

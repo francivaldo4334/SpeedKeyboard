@@ -43,7 +43,7 @@ class ChordsManager {
         set("101000", "f")
         set("000101", "j")
         set("101010", "z")
-        set("110100", "w")
+        set("111000", "w")
         set("011010", "y")
         set("000111", " ")
         set("100001", "SHIFT")
@@ -54,7 +54,11 @@ class ChordsManager {
         set("001011", "-SHIFT_")
         set("111100", "~SHIFT^")
         set("111010", "´SHIFT`")
-        set("101100", "ç")
+        set("010011", "ç")
+        set("100110", ",SHIFT<")
+        set("100101", ".SHIFT>")
+        set("110100", "[SHIFT{")
+        set("101100", "]SHIFT}")
     }
 
     fun setMode(mode: String) {
