@@ -1,5 +1,6 @@
 package br.com.fcr.speedkeyboard
 
+import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
@@ -149,7 +150,9 @@ class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
         }
     }
 
-    fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
+    fun onActionScroll(button: Button, buttons: List<Button>, event: MotionEvent) {
+        val x = event.x
+        val y = event.y
         val btnW = button.width
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
@@ -166,7 +169,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
             }
         } else {
             othersButtons[button.id]?.let {
-                onActionUp(it, buttons)
+                onActionTouch(it, buttons,event)
             }
             othersButtons[button.id] = null
         }
@@ -202,5 +205,20 @@ class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
         buttons[4].isSelected = false
         buttons[5].text = getKey("000001")
         buttons[5].isSelected = false
+    }
+
+    fun onActionTouch(button: Button, buttons: List<Button>, event: MotionEvent) {
+        when (event.action) {
+            MotionEvent.ACTION_UP ->
+                onActionUp(button, buttons)
+
+            MotionEvent.ACTION_DOWN ->
+                onActionDown(buttons, button)
+
+            MotionEvent.ACTION_MOVE -> {
+                onActionScroll(button, buttons, event)
+            }
+        }
+
     }
 }

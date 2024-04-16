@@ -31,19 +31,8 @@ class KeyboardService() : InputMethodService() {
 
             buttons.forEach {
                 it.setOnTouchListener { v, event ->
-                    val button = v as Button
                     keyActionsController.setInputConnection(currentInputConnection)
-                    when (event.action) {
-                        MotionEvent.ACTION_UP ->
-                            keyActionsController.onActionUp(button, buttons)
-
-                        MotionEvent.ACTION_DOWN ->
-                            keyActionsController.onActionDown(buttons, button)
-
-                        MotionEvent.ACTION_MOVE -> {
-                            keyActionsController.onActionScroll(button, buttons, event.x, event.y)
-                        }
-                    }
+                    keyActionsController.onActionTouch(v as Button,buttons,event)
                     true
                 }
             }
