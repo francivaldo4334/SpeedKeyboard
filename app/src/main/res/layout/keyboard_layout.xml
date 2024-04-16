@@ -42,7 +42,7 @@
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/keyboard_height"
-        android:paddingHorizontal="@dimen/_12dp"
+        android:paddingHorizontal="@dimen/_16dp"
         android:orientation="vertical"
         android:layout_gravity="center"
         android:rowCount="2"
@@ -110,5 +110,5 @@
     </GridLayout>
     <Space
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_12dp"/>
+        android:layout_height="@dimen/_16dp"/>
 </LinearLayout>

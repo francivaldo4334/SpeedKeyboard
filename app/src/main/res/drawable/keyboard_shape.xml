@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <corners android:topLeftRadius="@dimen/_12dp" android:topRightRadius="@dimen/_12dp"/>
+    <corners android:topLeftRadius="@dimen/_16dp" android:topRightRadius="@dimen/_16dp"/>
 </shape>
