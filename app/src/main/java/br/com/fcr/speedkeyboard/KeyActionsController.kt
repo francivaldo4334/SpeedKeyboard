@@ -1,13 +1,11 @@
 package br.com.fcr.speedkeyboard
 
-import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
 
-data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
 class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) {
     private var chordsManager: ChordsManager = ChordsManager()
     private var chordId = ""
@@ -26,13 +24,13 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
 
     private fun onActionLongPress(buttons: List<Button>) {
         isRunnableLongPress = true
-        Thread(Runnable {
+        Thread {
             while (isRunnableLongPress) {
                 loadKeyByChord(buttons.getChordId())
                 execute(key)
                 Thread.sleep(10)
             }
-        }).start()
+        }.start()
     }
 
     private fun execute(key: String) {
@@ -86,11 +84,11 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
         }
     }
 
-    fun onActionDown(buttons: List<Button>, button: Button) {
+    private fun onActionDown(buttons: List<Button>, button: Button) {
         button.isPressed = true
         chordId = buttons.getChordId()
         if (chordsManager.getKey(chordId) == "DELETE") {
-            Thread(Runnable {
+            Thread {
                 val initialTime = System.currentTimeMillis()
                 val initialChord = chordId
                 var executeLongPress = true
@@ -104,7 +102,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
                 if (executeLongPress) {
                     onActionLongPress(buttons)
                 }
-            }).start()
+            }.start()
         }
         loadPreviousKeys(buttons)
     }
@@ -132,7 +130,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
         }
     }
 
-    fun onActionUp(button: Button, buttons: List<Button>) {
+    private fun onActionUp(button: Button, buttons: List<Button>) {
         isRunnableLongPress = false
         isDelete = false
         button.isPressed = false
@@ -149,7 +147,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
         }
     }
 
-    fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
+    private fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
         val btnW = button.width
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
