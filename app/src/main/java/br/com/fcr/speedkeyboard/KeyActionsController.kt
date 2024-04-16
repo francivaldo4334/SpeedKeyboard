@@ -1,5 +1,6 @@
 package br.com.fcr.speedkeyboard
 
+import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
@@ -148,6 +149,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
     }
 
     private fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
+        Log.d("SCROLL_BUTTON", "${button.id}: ${x}, ${y}")
         val btnW = button.width
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
@@ -159,9 +161,25 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
             val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
             val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
             if (othersButtons[button.id] == null) {
-                othersButtons[button.id] = buttons.find { it.id == newBtnId }
-                val newButton = othersButtons[button.id]!!
+                val newButton = buttons.find { it.id == newBtnId }!!
+                othersButtons[button.id] = newButton
                 onActionDown(buttons, newButton)
+            }
+            else {
+                val newButton = othersButtons[button.id]!!
+                val scaleW =
+                    when (newButton.id) {
+                        in listOf(R.id.btn0, R.id.btn3) -> 0
+                        in listOf(R.id.btn1,R.id.btn4) -> 1
+                        else -> 2
+                    }
+                val scaleH =
+                    when(newButton.id) {
+                        in listOf(R.id.btn0,R.id.btn1, R.id.btn2) -> 0
+                        else -> 1
+                    }
+
+//                onActionScroll(newButton, buttons, x - (button.width * scaleW), y - (button.height * scaleH))
             }
         } else {
             othersButtons[button.id]?.let {
@@ -169,21 +187,6 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
             }
             othersButtons[button.id] = null
         }
-//        othersButtons[button.id]?.let { newButton ->
-//            val scaleW =
-//                when (newButton.id) {
-//                    in listOf(R.id.btn0, R.id.btn3) -> 0
-//                    in listOf(R.id.btn1,R.id.btn4) -> 1
-//                    else -> 2
-//                }
-//            val scaleH =
-//                when(newButton.id) {
-//                    in listOf(R.id.btn0,R.id.btn1, R.id.btn2) -> 0
-//                    else -> 1
-//                }
-//
-//            onActionScroll(newButton, buttons, x - (button.width * scaleW), y - (button.height * scaleH))
-//        }
     }
 
     fun nextMode(): String {
