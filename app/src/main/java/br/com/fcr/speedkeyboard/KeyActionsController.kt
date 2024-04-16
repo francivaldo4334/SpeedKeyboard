@@ -1,15 +1,14 @@
 package br.com.fcr.speedkeyboard
 
+import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 data class ButtonStates(var isActivated: Boolean, var initialPressedTime: Long)
-class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
+class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) {
     private var chordsManager: ChordsManager = ChordsManager()
     private var chordId = ""
     private var key = ""
@@ -150,9 +149,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
         }
     }
 
-    fun onActionScroll(button: Button, buttons: List<Button>, event: MotionEvent) {
-        val x = event.x
-        val y = event.y
+    fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
         val btnW = button.width
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
@@ -165,14 +162,30 @@ class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
             val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
             if (othersButtons[button.id] == null) {
                 othersButtons[button.id] = buttons.find { it.id == newBtnId }
-                onActionDown(buttons, othersButtons[button.id]!!)
+                val newButton = othersButtons[button.id]!!
+                onActionDown(buttons, newButton)
             }
         } else {
             othersButtons[button.id]?.let {
-                onActionTouch(it, buttons,event)
+                onActionUp(it, buttons)
             }
             othersButtons[button.id] = null
         }
+//        othersButtons[button.id]?.let { newButton ->
+//            val scaleW =
+//                when (newButton.id) {
+//                    in listOf(R.id.btn0, R.id.btn3) -> 0
+//                    in listOf(R.id.btn1,R.id.btn4) -> 1
+//                    else -> 2
+//                }
+//            val scaleH =
+//                when(newButton.id) {
+//                    in listOf(R.id.btn0,R.id.btn1, R.id.btn2) -> 0
+//                    else -> 1
+//                }
+//
+//            onActionScroll(newButton, buttons, x - (button.width * scaleW), y - (button.height * scaleH))
+//        }
     }
 
     fun nextMode(): String {
@@ -216,7 +229,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int,Button?>) {
                 onActionDown(buttons, button)
 
             MotionEvent.ACTION_MOVE -> {
-                onActionScroll(button, buttons, event)
+                onActionScroll(button, buttons, event.x, event.y)
             }
         }
 
