@@ -6,6 +6,8 @@ import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<ButtonIdsManager.Directions>, Button>?>) {
     private var chordsManager: ChordsManager = ChordsManager()
@@ -153,14 +155,10 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
         val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
-
-        if ((x < btnW && x > 0 && y < btnH && y > 0)) {
-            othersButtons[button.id]?.let {
-                onActionUp(it.second, buttons)
-            }
-            othersButtons[button.id] = null
-        }
-        else {
+        val margin = 0.2f
+        val marginW = margin * btnW
+        val marginH = margin * btnH
+        if (x > btnW + marginW || x < -marginW || y > btnH + marginH || y < -marginH) {
             val angle = buttonsIdManager.calcAngle(initClick, currentClick)
             val angleRounded45 = buttonsIdManager.getRound45(angle)
             if (othersButtons[button.id] == null) {
@@ -190,6 +188,12 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
                     onActionScroll(newButton.second, buttons, newX, newY)
                 }
             }
+        }
+        else {
+            othersButtons[button.id]?.let {
+                onActionUp(it.second, buttons)
+            }
+            othersButtons[button.id] = null
         }
     }
 
