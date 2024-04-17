@@ -91,4 +91,8 @@ class ButtonIdsManager {
             else -> listOf(Directions.UP)
         }
     }
+
+    fun getDirectionsByButtonId(id: Int): List<Directions> {
+
+    }
 }

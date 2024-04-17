@@ -157,15 +157,16 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
         if ((x > btnW || x < 0 || y > btnH || y < 0)) {
             val angle = buttonsIdManager.calcAngle(initClick, currentClick)
             val angleRounded45 = buttonsIdManager.getRound45(angle)
-            val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
-            val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
             if (othersButtons[button.id] == null) {
+                val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
+                val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
                 val newButton = buttons.find { it.id == newBtnId }!!
                 othersButtons[button.id] = newButton
                 onActionDown(buttons, newButton)
             }
             else {
                 val newButton = othersButtons[button.id]!!
+                val dirs = buttonsIdManager.getDirectionsByButtonId(newButton.id)
                 val scaleH = when {
                     ButtonIdsManager.Directions.UP in dirs -> 1
                     ButtonIdsManager.Directions.DOWN in dirs -> -1
@@ -180,8 +181,8 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
                 val productH = (scaleH * button.height)
                 val newX = x + productW
                 val newY = y + productH
-                Log.d("SCROLL_BUTTON", "${button.id}: $newX, $newY")
-                onActionScroll(newButton, buttons, newX, newY)
+                Log.d("SCROLL_BUTTON", "${newButton.id}: $newX, $newY")
+//                onActionScroll(newButton, buttons, newX, newY)
             }
         } else {
             othersButtons[button.id]?.let {
