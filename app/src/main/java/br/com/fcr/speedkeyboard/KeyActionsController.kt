@@ -7,7 +7,7 @@ import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
 
-class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) {
+class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<ButtonIdsManager.Directions>, Button>?>) {
     private var chordsManager: ChordsManager = ChordsManager()
     private var chordId = ""
     private var key = ""
@@ -144,7 +144,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
         val instanceOtherButton = othersButtons[button.id]
         othersButtons[button.id] = null
         instanceOtherButton?.let {
-            onActionUp(it, buttons)
+            onActionUp(it.second, buttons)
         }
     }
 
@@ -154,41 +154,42 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
         val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
 
-        if ((x > btnW || x < 0 || y > btnH || y < 0)) {
+        if ((x < btnW && x > 0 && y < btnH && y > 0)) {
+            othersButtons[button.id]?.let {
+                onActionUp(it.second, buttons)
+            }
+            othersButtons[button.id] = null
+        }
+        else {
             val angle = buttonsIdManager.calcAngle(initClick, currentClick)
             val angleRounded45 = buttonsIdManager.getRound45(angle)
             if (othersButtons[button.id] == null) {
                 val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
                 val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
-                val newButton = buttons.find { it.id == newBtnId }!!
-                othersButtons[button.id] = newButton
-                onActionDown(buttons, newButton)
-            }
-            else {
-                val newButton = othersButtons[button.id]!!
-                val dirs = buttonsIdManager.getDirectionsByButtonId(newButton.id)
-                val scaleH = when {
-                    ButtonIdsManager.Directions.UP in dirs -> 1
-                    ButtonIdsManager.Directions.DOWN in dirs -> -1
-                    else -> 0
+                buttons.find { it.id == newBtnId }?.let { newButton ->
+                    othersButtons[button.id] = Pair(dirs, newButton)
+                    onActionDown(buttons, newButton)
                 }
-                val scaleW = when {
-                    ButtonIdsManager.Directions.RIGHT in dirs -> -1
-                    ButtonIdsManager.Directions.LEFT in dirs -> 1
-                    else -> 0
+            } else {
+                othersButtons[button.id]?.let { newButton ->
+                    val dirs = newButton.first
+                    val scaleH = when {
+                        ButtonIdsManager.Directions.UP in dirs -> 1
+                        ButtonIdsManager.Directions.DOWN in dirs -> -1
+                        else -> 0
+                    }
+                    val scaleW = when {
+                        ButtonIdsManager.Directions.RIGHT in dirs -> -1
+                        ButtonIdsManager.Directions.LEFT in dirs -> 1
+                        else -> 0
+                    }
+                    val productW = (scaleW * button.width)
+                    val productH = (scaleH * button.height)
+                    val newX = x + productW
+                    val newY = y + productH
+                    onActionScroll(newButton.second, buttons, newX, newY)
                 }
-                val productW = (scaleW * button.width)
-                val productH = (scaleH * button.height)
-                val newX = x + productW
-                val newY = y + productH
-                Log.d("SCROLL_BUTTON", "${newButton.id}: $newX, $newY")
-//                onActionScroll(newButton, buttons, newX, newY)
             }
-        } else {
-            othersButtons[button.id]?.let {
-                onActionUp(it, buttons)
-            }
-            othersButtons[button.id] = null
         }
     }
 

@@ -3,10 +3,10 @@ package br.com.fcr.speedkeyboard
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
 import android.view.KeyEvent
-import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
+import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 
 
 class KeyboardService() : InputMethodService() {
@@ -55,7 +55,7 @@ class KeyboardService() : InputMethodService() {
                     }
                 }
             }
-            val othersButtons: MutableMap<Int,Button?> = mutableMapOf()
+            val othersButtons: MutableMap<Int,Pair<List<ButtonIdsManager.Directions>,Button>?> = mutableMapOf()
             buttons.forEach {
                 othersButtons[it.id] = null
             }
