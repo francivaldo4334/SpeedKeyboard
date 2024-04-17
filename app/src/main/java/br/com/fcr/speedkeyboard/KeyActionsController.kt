@@ -149,7 +149,6 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
     }
 
     private fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
-        Log.d("SCROLL_BUTTON", "${button.id}: ${x}, ${y}")
         val btnW = button.width
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
@@ -167,19 +166,22 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Button?>) 
             }
             else {
                 val newButton = othersButtons[button.id]!!
-                val scaleW =
-                    when (newButton.id) {
-                        in listOf(R.id.btn0, R.id.btn3) -> 0
-                        in listOf(R.id.btn1,R.id.btn4) -> 1
-                        else -> 2
-                    }
-                val scaleH =
-                    when(newButton.id) {
-                        in listOf(R.id.btn0,R.id.btn1, R.id.btn2) -> 0
-                        else -> 1
-                    }
-
-//                onActionScroll(newButton, buttons, x - (button.width * scaleW), y - (button.height * scaleH))
+                val scaleH = when {
+                    ButtonIdsManager.Directions.UP in dirs -> 1
+                    ButtonIdsManager.Directions.DOWN in dirs -> -1
+                    else -> 0
+                }
+                val scaleW = when {
+                    ButtonIdsManager.Directions.RIGHT in dirs -> -1
+                    ButtonIdsManager.Directions.LEFT in dirs -> 1
+                    else -> 0
+                }
+                val productW = (scaleW * button.width)
+                val productH = (scaleH * button.height)
+                val newX = x + productW
+                val newY = y + productH
+                Log.d("SCROLL_BUTTON", "${button.id}: $newX, $newY")
+                onActionScroll(newButton, buttons, newX, newY)
             }
         } else {
             othersButtons[button.id]?.let {
