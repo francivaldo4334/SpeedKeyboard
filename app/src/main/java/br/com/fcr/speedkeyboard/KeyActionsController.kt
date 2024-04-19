@@ -155,14 +155,19 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
         val btnH = button.height
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
         val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
-        val margin = 0.2f
-//        val marginW = margin * btnW
-//        val marginH = margin * btnH
-        val marginH = 0
-        val marginW = 0
-        if (x > btnW + marginW || x < -marginW || y > btnH + marginH || y < -marginH) {
+        val currentDistance = sqrt((currentClick.first - initClick.first).pow(2) + (currentClick.second - initClick.second).pow(2))
+        if (x > btnW  || x < 0 || y > btnH || y < 0) {
             val angle = buttonsIdManager.calcAngle(initClick, currentClick)
             val angleRounded45 = buttonsIdManager.getRound45(angle)
+            var distance = 0f
+            if ((angleRounded45 % 90).toInt() != 0){
+                val margin = 0.2f
+                val marginW = margin * btnW
+                val marginH = margin * btnH
+                val w = (btnW + marginW)/2
+                val h = (btnH + marginH)/2
+                distance = sqrt(w.pow(2) + h.pow(2))
+            }
             if (othersButtons[button.id] == null) {
                 val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
                 val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
@@ -170,7 +175,8 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
                     othersButtons[button.id] = Pair(dirs, newButton)
                     onActionDown(buttons, newButton)
                 }
-            } else {
+            }
+            else if (distance == 0f || currentDistance > distance){
                 othersButtons[button.id]?.let { newButton ->
                     val dirs = newButton.first
                     val scaleH = when {
