@@ -21,6 +21,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
     private var buttonsIdManager: ButtonIdsManager = ButtonIdsManager()
     private var isRunnableLongPress = false
     private var currentInputConnection: InputConnection? = null
+    private var limitDistance: Float? = null
     fun setInputConnection(inputConnection: InputConnection) {
         currentInputConnection = inputConnection
     }
@@ -159,14 +160,13 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
         if (x > btnW  || x < 0 || y > btnH || y < 0) {
             val angle = buttonsIdManager.calcAngle(initClick, currentClick)
             val angleRounded45 = buttonsIdManager.getRound45(angle)
-            var distance = 0f
-            if ((angleRounded45 % 90).toInt() != 0){
-                val margin = 0.2f
+            if (limitDistance == null && (angleRounded45 % 90).toInt() != 0){
+                val margin = 0.5f
                 val marginW = margin * btnW
                 val marginH = margin * btnH
                 val w = (btnW + marginW)/2
                 val h = (btnH + marginH)/2
-                distance = sqrt(w.pow(2) + h.pow(2))
+                limitDistance = sqrt(w.pow(2) + h.pow(2))
             }
             if (othersButtons[button.id] == null) {
                 val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
@@ -176,7 +176,7 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
                     onActionDown(buttons, newButton)
                 }
             }
-            else if (distance == 0f || currentDistance > distance){
+            else if (limitDistance == null || currentDistance > limitDistance!!){
                 othersButtons[button.id]?.let { newButton ->
                     val dirs = newButton.first
                     val scaleH = when {
