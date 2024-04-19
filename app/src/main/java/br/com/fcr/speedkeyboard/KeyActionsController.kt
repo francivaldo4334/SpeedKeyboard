@@ -156,8 +156,10 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
         val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
         val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
         val margin = 0.2f
-        val marginW = margin * btnW
-        val marginH = margin * btnH
+//        val marginW = margin * btnW
+//        val marginH = margin * btnH
+        val marginH = 0
+        val marginW = 0
         if (x > btnW + marginW || x < -marginW || y > btnH + marginH || y < -marginH) {
             val angle = buttonsIdManager.calcAngle(initClick, currentClick)
             val angleRounded45 = buttonsIdManager.getRound45(angle)
