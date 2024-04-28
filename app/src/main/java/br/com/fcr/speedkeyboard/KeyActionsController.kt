@@ -45,11 +45,13 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
                 }
 
                 else -> {
-                    if (lastKey.isNotBlank() && key.isNotBlank() && lastChord.isNotBlank() && chordsManager.regexIsDiacriticChord.matches(
-                            lastChord
+                    if (lastKey.isNotEmpty() && key.isNotEmpty() &&  "^~¨´`".contains(lastKey)) {
+                        val newKey = chordsManager.getDiacritic(
+                            diacritic = lastKey,
+                            key = key
                         )
-                    ) {
-                        commitText(key, 1)
+                        deleteSurroundingText(1, 0)
+                        commitText(newKey, 1)
                     } else {
                         commitText(key, 1)
                     }
@@ -59,8 +61,9 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
     }
 
     private fun loadKeyByChord(chord: String) {
+        if (key != "SHIFT" && key != "DELETE" && key != "")
+            lastKey = key
         key = ""
-        lastKey = key
         lastChord = chord
         isDelete = false
         if (!chordsManager.containsKey(chord)) {
@@ -82,8 +85,8 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
             }
 
             else -> {
-                isShift = false
                 key = newKeyString
+                isShift = false
             }
         }
     }

@@ -2,7 +2,6 @@ package br.com.fcr.speedkeyboard
 
 class ChordsManager {
     val regexIsShiftPair = Regex("^(.)SHIFT(.)$")
-    val regexIsDiacriticChord = Regex("^111[0-1]+$")
     private var mode = "a-z"
     private val numberChords = buildMap<String, String> {
         set("100000", "1SHIFT!")
@@ -17,6 +16,7 @@ class ChordsManager {
         set("000001", "0SHIFT)")
         set("100001", "SHIFT")
         set("001100", "DELETE")
+        set("111000", " ")
     }
     private val charChords = buildMap<String, String> {
         set("100000", "a")
@@ -30,8 +30,8 @@ class ChordsManager {
         set("100011", "d")
         set("000011", "m")
         set("100010", "c")
-        set("010001", "t")
-        set("010100", "l")
+        set("010100", "t")
+        set("010001", "l")
         set("110001", "p")
         set("000110", "v")
         set("001010", "g")
@@ -44,7 +44,7 @@ class ChordsManager {
         set("000101", "j")
         set("101010", "z")
         set("111000", "w")
-        set("011010", "y")
+        set("110010", "y")
         set("000111", " ")
         set("100001", "SHIFT")
         set("001100", "DELETE")
@@ -52,11 +52,12 @@ class ChordsManager {
         set("101001", ";SHIFT:")
         set("001101", "+SHIFT=")
         set("001011", "-SHIFT_")
-        set("111100", "~SHIFT^")
-        set("111010", "´SHIFT`")
-        set("010011", "ç")
-        set("100110", ",SHIFT<")
-        set("100101", ".SHIFT>")
+        set("100111", "~SHIFT^")
+        set("001111", "¨")
+        set("010111", "´SHIFT`")
+        set("100110", "ç")
+        set("010110", ",SHIFT<")
+        set("010011", ".SHIFT>")
         set("110100", "[SHIFT{")
         set("101100", "]SHIFT}")
     }
@@ -130,6 +131,79 @@ class ChordsManager {
             "000010" -> R.id.btn4
             "000001" -> R.id.btn5
             else -> null
+        }
+    }
+
+    fun getDiacritic(diacritic: String, key: String):String {
+        return when(diacritic){
+            "^" -> when(key) {
+                    "a" -> "â"
+                    "e" -> "ê"
+                    "i" -> "î"
+                    "o" -> "ô"
+                    "u" -> "û"
+                    "A" -> "Â"
+                    "E" -> "Ê"
+                    "I" -> "Î"
+                    "O" -> "Ô"
+                    "U" -> "Û"
+                    else -> ""
+                }
+            "~" -> when(key) {
+                    "a" -> "ã"
+                    "e" -> "ẽ"
+                    "i" -> "ĩ"
+                    "o" -> "õ"
+                    "u" -> "ũ"
+                    "n" -> "ñ"
+                    "A" -> "Ã"
+                    "E" -> "Ẽ"
+                    "I" -> "Ĩ"
+                    "O" -> "Õ"
+                    "U" -> "Ũ"
+                    "N" -> "Ñ"
+                    else -> ""
+                }
+            "´" -> when(key) {
+                    "a" -> "á"
+                    "e" -> "é"
+                    "i" -> "í"
+                    "o" -> "ó"
+                    "u" -> "ú"
+                    "A" -> "Á"
+                    "E" -> "É"
+                    "I" -> "Í"
+                    "O" -> "Ó"
+                    "U" -> "Ú"
+                    else -> ""
+                }
+            "`" -> when(key) {
+                    "a" -> "à"
+                    "e" -> "è"
+                    "i" -> "ì"
+                    "o" -> "ò"
+                    "u" -> "ù"
+                    "A" -> "À"
+                    "E" -> "È"
+                    "I" -> "Ì"
+                    "O" -> "Ò"
+                    "U" -> "Ù"
+                    else -> ""
+                }
+            "¨" -> when(key) {
+                    "a" -> "ä"
+                    "e" -> "ë"
+                    "i" -> "ï"
+                    "o" -> "ö"
+                    "u" -> "ü"
+                    "A" -> "Ä"
+                    "E" -> "Ë"
+                    "I" -> "Ï"
+                    "O" -> "Ö"
+                    "U" -> "Ü"
+                    else -> ""
+                }
+            else -> ""
         }
     }
 }
