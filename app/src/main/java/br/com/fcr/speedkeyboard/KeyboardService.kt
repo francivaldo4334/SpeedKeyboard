@@ -46,7 +46,6 @@ class KeyboardService() : InputMethodService() {
                 val editorInfo = currentInputEditorInfo
                 if (editorInfo != null) {
                     val imeOptionsActionId = editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
-                    if (imeOptionsActionId != IME_ACTION_NONE)
                     currentInputConnection.apply {
                         when(imeOptionsActionId){
                             IME_ACTION_NONE -> {
