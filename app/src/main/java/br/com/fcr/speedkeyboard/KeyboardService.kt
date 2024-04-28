@@ -7,6 +7,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
+import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
 
 
 class KeyboardService() : InputMethodService() {
@@ -45,13 +46,27 @@ class KeyboardService() : InputMethodService() {
                 val editorInfo = currentInputEditorInfo
                 if (editorInfo != null) {
                     val imeOptionsActionId = editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
+                    if (imeOptionsActionId != IME_ACTION_NONE)
                     currentInputConnection.apply {
-                        sendKeyEvent(
-                            KeyEvent(
-                                KeyEvent.ACTION_DOWN,
-                                imeOptionsActionId
-                            )
-                        )
+                        when(imeOptionsActionId){
+                            IME_ACTION_NONE -> {
+                                performEditorAction(imeOptionsActionId)
+                            }
+                            else -> {
+                                sendKeyEvent(
+                                    KeyEvent(
+                                        KeyEvent.ACTION_DOWN,
+                                        KeyEvent.KEYCODE_ENTER
+                                    )
+                                )
+                                sendKeyEvent(
+                                    KeyEvent(
+                                        KeyEvent.ACTION_UP,
+                                        KeyEvent.KEYCODE_ENTER
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             }
