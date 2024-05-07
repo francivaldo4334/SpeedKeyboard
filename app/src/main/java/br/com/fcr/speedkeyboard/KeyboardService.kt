@@ -49,9 +49,6 @@ class KeyboardService() : InputMethodService() {
                     currentInputConnection.apply {
                         when(imeOptionsActionId){
                             IME_ACTION_NONE -> {
-                                performEditorAction(imeOptionsActionId)
-                            }
-                            else -> {
                                 sendKeyEvent(
                                     KeyEvent(
                                         KeyEvent.ACTION_DOWN,
@@ -64,6 +61,9 @@ class KeyboardService() : InputMethodService() {
                                         KeyEvent.KEYCODE_ENTER
                                     )
                                 )
+                            }
+                            else -> {
+                                performEditorAction(imeOptionsActionId)
                             }
                         }
                     }
