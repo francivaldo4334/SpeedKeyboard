@@ -1,14 +1,12 @@
 package br.com.fcr.speedkeyboard
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
 import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import br.com.fcr.speedkeyboard.utils.getChordId
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 class KeyActionsController(private val context: Context,private val othersButtons: MutableMap<Int, Pair<List<ButtonIdsManager.Directions>, Button>?>) {
     private var chordsManager: ChordsManager = ChordsManager(context)
@@ -155,58 +153,103 @@ class KeyActionsController(private val context: Context,private val othersButton
         }
     }
 
-    private fun onActionScroll(button: Button, buttons: List<Button>, x: Float, y: Float) {
-        val btnW = button.width
-        val btnH = button.height
-        val currentClick: Pair<Double, Double> = Pair(x.toDouble(), y.toDouble())
-        val initClick: Pair<Double, Double> = Pair((btnW / 2).toDouble(), (btnH / 2).toDouble())
-        val currentDistance = sqrt((currentClick.first - initClick.first).pow(2) + (currentClick.second - initClick.second).pow(2))
-        if (x > btnW  || x < 0 || y > btnH || y < 0) {
-            val angle = buttonsIdManager.calcAngle(initClick, currentClick)
-            val angleRounded45 = buttonsIdManager.getRound45(angle)
-            if (limitDistance == null && (angleRounded45 % 90).toInt() != 0){
-                val margin = 0.5f
-                val marginW = margin * btnW
-                val marginH = margin * btnH
-                val w = (btnW + marginW)/2
-                val h = (btnH + marginH)/2
-                limitDistance = sqrt(w.pow(2) + h.pow(2))
+    fun onActionTouch(button: Button, buttons: List<Button>, event: MotionEvent) {
+        when (event.action) {
+            MotionEvent.ACTION_UP ->
+                onActionUp(button, buttons)
+
+            MotionEvent.ACTION_DOWN ->
+                onActionDown(buttons, button)
+
+            MotionEvent.ACTION_MOVE -> {
+                onActionScroll(button, buttons, event.rawX, event.rawY)
             }
-            if (othersButtons[button.id] == null) {
-                val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
-                val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
-                buttons.find { it.id == newBtnId }?.let { newButton ->
-                    othersButtons[button.id] = Pair(dirs, newButton)
-                    onActionDown(buttons, newButton)
-                }
+        }
+
+    }
+
+    private fun onActionScroll(button: Button, buttons: List<Button>, rawX: Float, rawY: Float) {
+        val location = IntArray(2)
+        button.getLocationOnScreen(location)
+        val buttonX = location[0]
+        val buttonY = location[1]
+        val buttonWidth = button.width
+        val buttonHeight = button.height
+//        val currentClick: Pair<Double, Double> = Pair(rawX.toDouble(), rawY.toDouble())
+//        val initClick: Pair<Double, Double> = Pair((buttonWidth / 2).toDouble(), (buttonHeight / 2).toDouble())
+//        val currentDistance = sqrt((currentClick.first - initClick.first).pow(2) + (currentClick.second - initClick.second).pow(2))
+//        if (rawX > buttonWidth  || rawX < 0 || rawY > buttonHeight || rawY < 0) {
+        if (rawX > buttonX + buttonWidth || rawX < buttonX || rawY > buttonY + buttonHeight || rawY < buttonY) {
+            val targetButton = findTargetButton(rawX,rawY, buttons)
+            targetButton?.let {
+                simulateTouchEvent(it, MotionEvent.ACTION_DOWN, rawX,rawY)
             }
-            else if (limitDistance == null || currentDistance > limitDistance!!){
-                othersButtons[button.id]?.let { newButton ->
-                    val dirs = newButton.first
-                    val scaleH = when {
-                        ButtonIdsManager.Directions.UP in dirs -> 1
-                        ButtonIdsManager.Directions.DOWN in dirs -> -1
-                        else -> 0
-                    }
-                    val scaleW = when {
-                        ButtonIdsManager.Directions.RIGHT in dirs -> -1
-                        ButtonIdsManager.Directions.LEFT in dirs -> 1
-                        else -> 0
-                    }
-                    val productW = (scaleW * button.width)
-                    val productH = (scaleH * button.height)
-                    val newX = x + productW
-                    val newY = y + productH
-                    onActionScroll(newButton.second, buttons, newX, newY)
-                }
-            }
+//            val angle = buttonsIdManager.calcAngle(initClick, currentClick)
+//            val angleRounded45 = buttonsIdManager.getRound45(angle)
+//            if (limitDistance == null && (angleRounded45 % 90).toInt() != 0){
+//                val margin = 0.5f
+//                val marginW = margin * buttonWidth
+//                val marginH = margin * buttonHeight
+//                val w = (buttonWidth + marginW)/2
+//                val h = (buttonHeight + marginH)/2
+//                limitDistance = sqrt(w.pow(2) + h.pow(2))
+//            }
+//            if (othersButtons[button.id] == null) {
+//                val dirs = buttonsIdManager.getDirectionsByRounded45(angleRounded45)
+//                val newBtnId = buttonsIdManager.getNextId(button.id, *dirs.toTypedArray())
+//                buttons.find { it.id == newBtnId }?.let { newButton ->
+//                    othersButtons[button.id] = Pair(dirs, newButton)
+//                    onActionDown(buttons, newButton)
+//                }
+//            }
+//            else if (limitDistance == null || currentDistance > limitDistance!!){
+//                othersButtons[button.id]?.let { newButton ->
+//                    val dirs = newButton.first
+//                    val scaleH = when {
+//                        ButtonIdsManager.Directions.UP in dirs -> 1
+//                        ButtonIdsManager.Directions.DOWN in dirs -> -1
+//                        else -> 0
+//                    }
+//                    val scaleW = when {
+//                        ButtonIdsManager.Directions.RIGHT in dirs -> -1
+//                        ButtonIdsManager.Directions.LEFT in dirs -> 1
+//                        else -> 0
+//                    }
+//                    val productW = (scaleW * button.width)
+//                    val productH = (scaleH * button.height)
+//                    val newX = rawX + productW
+//                    val newY = rawY + productH
+//                    onActionScroll(newButton.second, buttons, newX, newY)
+//                }
+//            }
         }
         else {
-            othersButtons[button.id]?.let {
-                onActionUp(it.second, buttons)
-            }
-            othersButtons[button.id] = null
+//            othersButtons[button.id]?.let {
+//                onActionUp(it.second, buttons)
+//            }
+//            othersButtons[button.id] = null
         }
+    }
+
+    private fun simulateTouchEvent(button: Button, action: Int, x: Float, y: Float) {
+        val motionEvent = MotionEvent.obtain(0,0, action, x, y, 0)
+        button.onTouchEvent(motionEvent)
+        motionEvent.recycle()
+    }
+
+    private fun findTargetButton(x: Float, y: Float, buttons: List<Button>): Button? {
+        for (button in buttons){
+            val location = IntArray(2)
+            button.getLocationOnScreen(location)
+            val buttonX = location[0]
+            val buttonY = location[1]
+            val buttonWidth = button.width
+            val buttonHeight = button.height
+            if (x > buttonX && x < buttonX + buttonWidth && y > buttonY && y < buttonY + buttonHeight) {
+                return button
+            }
+        }
+        return null
     }
 
     fun nextMode(): String {
@@ -239,20 +282,5 @@ class KeyActionsController(private val context: Context,private val othersButton
         buttons[4].isSelected = false
         buttons[5].text = getKey("000001")
         buttons[5].isSelected = false
-    }
-
-    fun onActionTouch(button: Button, buttons: List<Button>, event: MotionEvent) {
-        when (event.action) {
-            MotionEvent.ACTION_UP ->
-                onActionUp(button, buttons)
-
-            MotionEvent.ACTION_DOWN ->
-                onActionDown(buttons, button)
-
-            MotionEvent.ACTION_MOVE -> {
-                onActionScroll(button, buttons, event.x, event.y)
-            }
-        }
-
     }
 }
