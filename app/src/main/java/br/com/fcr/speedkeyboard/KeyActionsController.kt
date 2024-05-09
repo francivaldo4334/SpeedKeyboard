@@ -1,5 +1,6 @@
 package br.com.fcr.speedkeyboard
 
+import android.content.Context
 import android.util.Log
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
@@ -9,8 +10,8 @@ import br.com.fcr.speedkeyboard.utils.getChordId
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<ButtonIdsManager.Directions>, Button>?>) {
-    private var chordsManager: ChordsManager = ChordsManager()
+class KeyActionsController(private val context: Context,private val othersButtons: MutableMap<Int, Pair<List<ButtonIdsManager.Directions>, Button>?>) {
+    private var chordsManager: ChordsManager = ChordsManager(context)
     private var chordId = ""
     private var key = ""
     private var lastKey = ""
@@ -210,8 +211,8 @@ class KeyActionsController(private val othersButtons: MutableMap<Int, Pair<List<
 
     fun nextMode(): String {
         val nextMode = when (chordsManager.getMode()) {
-            "a-z" -> "0-9"
-            else -> "a-z"
+            context.getString(R.string.mode_chars) -> context.getString(R.string.mode_number)
+            else -> context.getString(R.string.mode_chars)
         }
         return nextMode
     }

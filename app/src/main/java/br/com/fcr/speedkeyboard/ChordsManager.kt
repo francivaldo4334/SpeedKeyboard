@@ -1,8 +1,10 @@
 package br.com.fcr.speedkeyboard
 
-class ChordsManager {
+import android.content.Context
+
+class ChordsManager(private val context: Context) {
     val regexIsShiftPair = Regex("^(.)SHIFT(.)$")
-    private var mode = "a-z"
+    private var mode = context.getString(R.string.mode_chars)
     private val numberChords = buildMap<String, String> {
         set("100000", "1SHIFT!")
         set("110000", "2SHIFT@")
@@ -72,8 +74,8 @@ class ChordsManager {
 
     fun getKey(chord: String, isCapslock: Boolean = false, isShift:Boolean = false): String {
         var newKeyString =  when (mode) {
-            "a-z" -> charChords[chord] ?: ""
-            "0-9" -> numberChords[chord] ?: ""
+            context.getString(R.string.mode_chars) -> charChords[chord] ?: ""
+            context.getString(R.string.mode_number) -> numberChords[chord] ?: ""
             else -> ""
         }
         var listCharacters: List<String> = listOf()
@@ -88,15 +90,15 @@ class ChordsManager {
     }
 
     fun getMapKeys() = when (mode) {
-        "a-z" -> charChords
-        "0-9" -> numberChords
+        context.getString(R.string.mode_chars) -> charChords
+        context.getString(R.string.mode_number) -> numberChords
         else -> emptyMap()
     }
 
     fun containsKey(chord: String): Boolean {
         return when (mode) {
-            "a-z" -> charChords.containsKey(chord)
-            "0-9" -> numberChords.containsKey(chord)
+            context.getString(R.string.mode_chars) -> charChords.containsKey(chord)
+            context.getString(R.string.mode_number) -> numberChords.containsKey(chord)
             else -> false
         }
     }

@@ -10,4 +10,5 @@
     <string name="key_"></string>
     <string name="divider">|</string>
     <string name="mode_chars">abc</string>
+    <string name="mode_number">123</string>
 </resources>

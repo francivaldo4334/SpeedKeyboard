@@ -74,6 +74,7 @@ class KeyboardService() : InputMethodService() {
                 othersButtons[it.id] = null
             }
             keyActionsController = KeyActionsController(
+                context=this@KeyboardService,
                 othersButtons
             )
         }
