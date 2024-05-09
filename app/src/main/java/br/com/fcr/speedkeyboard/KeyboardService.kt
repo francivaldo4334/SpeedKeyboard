@@ -2,11 +2,11 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import br.com.fcr.speedkeyboard.utils.ButtonIdsManager
 import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
 
 
@@ -69,13 +69,8 @@ class KeyboardService() : InputMethodService() {
                     }
                 }
             }
-            val othersButtons: MutableMap<Int,Pair<List<ButtonIdsManager.Directions>,Button>?> = mutableMapOf()
-            buttons.forEach {
-                othersButtons[it.id] = null
-            }
             keyActionsController = KeyActionsController(
                 context=this@KeyboardService,
-                othersButtons
             )
         }
     }
