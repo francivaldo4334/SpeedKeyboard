@@ -1,6 +1,12 @@
 package br.com.fcr.speedkeyboard
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import android.os.CombinedVibration
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
@@ -8,7 +14,7 @@ import br.com.fcr.speedkeyboard.utils.getChordId
 
 class KeyActionsController(
     private val context: Context,
-    private val othersButtons: MutableMap<Int, MutableMap<Int,Button>> = mutableMapOf()
+    private val othersButtons: MutableMap<Int, MutableMap<Int, Button>> = mutableMapOf()
 ) {
     private var chordsManager: ChordsManager = ChordsManager(context)
     private var chordId = ""
@@ -147,7 +153,7 @@ class KeyActionsController(
         }
         if (othersButtons.containsKey(button.id)) {
             othersButtons[button.id]?.forEach {
-                onActionUp(it.value,buttons)
+                onActionUp(it.value, buttons)
             }
         }
         othersButtons.remove(button.id)
@@ -159,14 +165,47 @@ class KeyActionsController(
                 onActionUp(button, buttons)
             }
 
-            MotionEvent.ACTION_DOWN ->
+            MotionEvent.ACTION_DOWN -> {
+                vibrate()
                 onActionDown(buttons, button)
+            }
 
             MotionEvent.ACTION_MOVE -> {
                 onActionScroll(button, buttons, event.rawX, event.rawY)
             }
         }
 
+    }
+
+    @SuppressLint("ServiceCast", "MissingPermission")
+    private fun vibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibrator =
+                context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+            vibrator.vibrate(
+                CombinedVibration.createParallel(
+                    VibrationEffect.createOneShot(
+                        100,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            )
+        } else {
+
+            val vibrator =
+                context.getSystemService(@Suppress("DEPRECATION") Context.VIBRATOR_SERVICE) as Vibrator
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                        100,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(100)
+            }
+        }
     }
 
     private fun onActionScroll(button: Button, buttons: List<Button>, rawX: Float, rawY: Float) {
@@ -179,19 +218,19 @@ class KeyActionsController(
         if (rawX > buttonX + buttonWidth || rawX < buttonX || rawY > buttonY + buttonHeight || rawY < buttonY) {
             val targetButton = findTargetButton(rawX, rawY, buttons)
             targetButton?.let {
-                if (othersButtons.containsKey(button.id)){
+                if (othersButtons.containsKey(button.id)) {
                     othersButtons[button.id]?.set(it.id, it)
-                }
-                else {
+                } else {
                     othersButtons[button.id] = mutableMapOf(it.id to it)
                 }
-                simulateTouchEvent(
-                    it,
-                    MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
-                )
+                if (!it.isPressed) {
+                    simulateTouchEvent(
+                        it,
+                        MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
+                    )
+                }
             }
-        }
-        else {
+        } else {
             if (othersButtons.containsKey(button.id)) {
                 othersButtons[button.id]?.forEach {
                     onActionUp(it.value, buttons)
