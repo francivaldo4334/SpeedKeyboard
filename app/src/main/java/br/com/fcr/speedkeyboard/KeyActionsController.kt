@@ -8,7 +8,7 @@ import br.com.fcr.speedkeyboard.utils.getChordId
 
 class KeyActionsController(
     private val context: Context,
-    private val othersButtons: MutableMap<Int, MutableList<Button>> = mutableMapOf()
+    private val othersButtons: MutableMap<Int, MutableMap<Int,Button>> = mutableMapOf()
 ) {
     private var chordsManager: ChordsManager = ChordsManager(context)
     private var chordId = ""
@@ -147,7 +147,7 @@ class KeyActionsController(
         }
         if (othersButtons.containsKey(button.id)) {
             othersButtons[button.id]?.forEach {
-                onActionUp(it,buttons)
+                onActionUp(it.value,buttons)
             }
         }
         othersButtons.remove(button.id)
@@ -180,16 +180,24 @@ class KeyActionsController(
             val targetButton = findTargetButton(rawX, rawY, buttons)
             targetButton?.let {
                 if (othersButtons.containsKey(button.id)){
-                    othersButtons[button.id]?.add(it)
+                    othersButtons[button.id]?.set(it.id, it)
                 }
                 else {
-                    othersButtons[button.id] = mutableListOf(it)
+                    othersButtons[button.id] = mutableMapOf(it.id to it)
                 }
                 simulateTouchEvent(
                     it,
                     MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
                 )
             }
+        }
+        else {
+            if (othersButtons.containsKey(button.id)) {
+                othersButtons[button.id]?.forEach {
+                    onActionUp(it.value, buttons)
+                }
+            }
+            othersButtons.remove(button.id)
         }
     }
 
