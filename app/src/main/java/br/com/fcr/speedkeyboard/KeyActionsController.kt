@@ -159,7 +159,12 @@ class KeyActionsController(
         othersButtons.remove(button.id)
     }
 
-    fun onActionTouch(button: Button, buttons: List<Button>, event: MotionEvent) {
+    fun onActionTouch(
+        button: Button,
+        buttons: List<Button>,
+        shortcutButtons: List<Button>,
+        event: MotionEvent
+    ) {
         when (event.action) {
             MotionEvent.ACTION_UP -> {
                 onActionUp(button, buttons)
@@ -171,7 +176,7 @@ class KeyActionsController(
             }
 
             MotionEvent.ACTION_MOVE -> {
-                onActionScroll(button, buttons, event.rawX, event.rawY)
+                onActionScroll(button, buttons, shortcutButtons, event.rawX, event.rawY)
             }
         }
 
@@ -208,7 +213,13 @@ class KeyActionsController(
         }
     }
 
-    private fun onActionScroll(button: Button, buttons: List<Button>, rawX: Float, rawY: Float) {
+    private fun onActionScroll(
+        button: Button,
+        buttons: List<Button>,
+        shortcutButtons: List<Button>,
+        rawX: Float,
+        rawY: Float
+    ) {
         val location = IntArray(2)
         button.getLocationOnScreen(location)
         val buttonX = location[0]
@@ -217,6 +228,7 @@ class KeyActionsController(
         val buttonHeight = button.height
         if (rawX > buttonX + buttonWidth || rawX < buttonX || rawY > buttonY + buttonHeight || rawY < buttonY) {
             val targetButton = findTargetButton(rawX, rawY, buttons)
+            val shortcutButton = findTargetButton(rawX, rawY, shortcutButtons)
             targetButton?.let {
                 if (othersButtons.containsKey(button.id)) {
                     othersButtons[button.id]?.set(it.id, it)
@@ -229,6 +241,32 @@ class KeyActionsController(
                         MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
                     )
                 }
+            }
+            shortcutButton?.let {btn ->
+                val buttonId = when (btn.id) {
+                    R.id.spacer_tl -> R.id.btn2
+                    R.id.spacer_tr -> R.id.btn0
+                    R.id.spacer_bl -> R.id.btn5
+                    R.id.spacer_br -> R.id.btn3
+                    else -> {
+                        0
+                    }
+                }
+                val newButton = buttons.find { it.id == buttonId}
+                newButton?.let {
+                    if (othersButtons.containsKey(button.id)) {
+                        othersButtons[button.id]?.set(it.id, it)
+                    } else {
+                        othersButtons[button.id] = mutableMapOf(it.id to it)
+                    }
+                    if (!it.isPressed) {
+                        simulateTouchEvent(
+                            it,
+                            MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
+                        )
+                    }
+                }
+
             }
         } else {
             if (othersButtons.containsKey(button.id)) {

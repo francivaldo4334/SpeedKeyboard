@@ -2,7 +2,6 @@ package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -12,6 +11,7 @@ import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
 
 class KeyboardService() : InputMethodService() {
     private lateinit var buttons: List<Button>
+    private lateinit var shortcutButtons: List<Button>
     private lateinit var keyActionsController: KeyActionsController
     private lateinit var buttonMode: Button
     private lateinit var buttonConfirm: Button
@@ -29,11 +29,17 @@ class KeyboardService() : InputMethodService() {
                 add(findViewById(R.id.btn4))
                 add(findViewById(R.id.btn5))
             }
+            shortcutButtons = buildList {
+                add(findViewById(R.id.spacer_tl))
+                add(findViewById(R.id.spacer_tr))
+                add(findViewById(R.id.spacer_bl))
+                add(findViewById(R.id.spacer_br))
+            }
 
             buttons.forEach {
                 it.setOnTouchListener { v, event ->
                     keyActionsController.setInputConnection(currentInputConnection)
-                    keyActionsController.onActionTouch(v as Button,buttons,event)
+                    keyActionsController.onActionTouch(v as Button,buttons, shortcutButtons,event)
                     true
                 }
             }
