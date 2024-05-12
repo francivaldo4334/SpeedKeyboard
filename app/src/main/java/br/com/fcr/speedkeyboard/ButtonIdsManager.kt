@@ -53,9 +53,9 @@ class ButtonIdsManager {
         return ids[currentIndex]
     }
 
-    fun calcAngle(vector1: Pair<Double, Double>, vector2: Pair<Double, Double>): Double {
+    fun calcAngle(center: Pair<Double, Double>, endVector: Pair<Double, Double>): Double {
         val v1 = Pair(0f, -10f)
-        val v2 = Pair(vector2.first - vector1.first, vector2.second - vector1.second)
+        val v2 = Pair(endVector.first - center.first, endVector.second - center.second)
         val crossProduct = v1.first * v2.second - v1.second * v2.first
         val dotProduct = v1.first * v2.first + v1.second * v2.second
         var angle = atan2(crossProduct, dotProduct)

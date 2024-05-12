@@ -246,11 +246,14 @@ class KeyActionsController(
                 button.getLocationOnScreen(location)
                 val buttonIdsManager = ButtonIdsManager()
                 var angle = buttonIdsManager.calcAngle(
-                    Pair(buttonWidth / 2, buttonHeight / 2) as Pair<Double, Double>,
-                    Pair(
-                        rawX - buttonX,
-                        rawY - buttonY
-                    ) as Pair<Double, Double>
+                    center = Pair(
+                        (buttonWidth / 2).toDouble(),
+                        (buttonHeight / 2).toDouble()
+                    ),
+                    endVector = Pair(
+                        (rawX - buttonX).toDouble(),
+                        (rawY - buttonY).toDouble()
+                    )
                 )
                 angle = buttonIdsManager.getRound45(angle)
                 val dirs = buttonIdsManager.getDirectionsByRounded45(angle)
