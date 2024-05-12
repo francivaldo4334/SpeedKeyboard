@@ -44,11 +44,13 @@ class KeyboardService() : InputMethodService() {
                 }
             }
             buttonMode.setOnClickListener {
+                keyActionsController.vibrate()
                 val textMode = keyActionsController.nextMode()
                 keyActionsController.setMode(textMode, buttons)
                 (it as Button).text = textMode
             }
             buttonConfirm.setOnClickListener {
+                keyActionsController.vibrate()
                 val editorInfo = currentInputEditorInfo
                 if (editorInfo != null) {
                     val imeOptionsActionId = editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
