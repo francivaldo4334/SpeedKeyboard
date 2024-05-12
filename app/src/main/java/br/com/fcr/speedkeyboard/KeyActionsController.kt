@@ -227,19 +227,35 @@ class KeyActionsController(
         val buttonWidth = button.width
         val buttonHeight = button.height
         if (rawX > buttonX + buttonWidth || rawX < buttonX || rawY > buttonY + buttonHeight || rawY < buttonY) {
-            findTargetButton(rawX, rawY, buttons).let { target ->
-                target ?: let {
-                    findTargetButton(rawX, rawY, shortcutButtons)?.let { btn ->
-                        val buttonId = when (btn.id) {
-                            R.id.spacer_tl -> R.id.btn2
-                            R.id.spacer_tr -> R.id.btn0
-                            R.id.spacer_bl -> R.id.btn5
-                            R.id.spacer_br -> R.id.btn3
-                            else -> 0
+            if (rawX > (buttonX + (2 * buttonWidth)) || rawX < buttonX -(buttonX - buttonWidth)) {
+                findTargetButton(rawX, rawY, buttons).let { target ->
+                    target ?: let {
+                        findTargetButton(rawX, rawY, shortcutButtons)?.let { btn ->
+                            val buttonId = when (btn.id) {
+                                R.id.spacer_tl -> R.id.btn2
+                                R.id.spacer_tr -> R.id.btn0
+                                R.id.spacer_bl -> R.id.btn5
+                                R.id.spacer_br -> R.id.btn3
+                                else -> 0
+                            }
+                            buttons.find { it.id == buttonId }
                         }
-                        buttons.find { it.id == buttonId }
                     }
                 }
+            } else {
+                button.getLocationOnScreen(location)
+                val buttonIdsManager = ButtonIdsManager()
+                var angle = buttonIdsManager.calcAngle(
+                    Pair(buttonWidth / 2, buttonHeight / 2) as Pair<Double, Double>,
+                    Pair(
+                        rawX - buttonX,
+                        rawY - buttonY
+                    ) as Pair<Double, Double>
+                )
+                angle = buttonIdsManager.getRound45(angle)
+                val dirs = buttonIdsManager.getDirectionsByRounded45(angle)
+                val buttonId = buttonIdsManager.getNextId(button.id, *dirs.toTypedArray())
+                buttons.find { it.id == buttonId }
             }?.let {
                 if (othersButtons.containsKey(button.id))
                     othersButtons[button.id]?.set(it.id, it)
