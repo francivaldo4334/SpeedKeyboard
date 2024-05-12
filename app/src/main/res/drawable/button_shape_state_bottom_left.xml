@@ -3,7 +3,7 @@
     <item android:state_pressed="true">
         <shape>
             <corners android:bottomLeftRadius="@dimen/_12dp"/>
-            <solid android:color="@color/primary"/>
+            <solid android:color="@color/surface_secondary"/>
         </shape>
     </item>
     <item android:drawable="@drawable/button_up_ui"
@@ -11,7 +11,7 @@
     <item android:state_selected="true">
         <shape>
             <corners android:bottomLeftRadius="@dimen/_12dp"/>
-            <solid android:color="@color/surface_secondary"/>
+            <solid android:color="@color/surface"/>
         </shape>
     </item>
     <item android:drawable="@drawable/button_up_ui"/>
