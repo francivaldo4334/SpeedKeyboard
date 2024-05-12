@@ -51,7 +51,8 @@ class KeyActionsController(
                 else -> {
                     if (lastKey.isNotEmpty() && key.isNotEmpty() && "^~¨´`".contains(lastKey)) {
                         val newKey = chordsManager.getDiacritic(
-                            diacritic = lastKey, key = key
+                            diacritic = lastKey,
+                            key = key
                         )
                         deleteSurroundingText(1, 0)
                         commitText(newKey, 1)
@@ -64,7 +65,8 @@ class KeyActionsController(
     }
 
     private fun loadKeyByChord(chord: String) {
-        if (key != "SHIFT" && key != "DELETE" && key != "") lastKey = key
+        if (key != "SHIFT" && key != "DELETE" && key != "")
+            lastKey = key
         key = ""
         lastChord = chord
         isDelete = false
@@ -158,7 +160,10 @@ class KeyActionsController(
     }
 
     fun onActionTouch(
-        button: Button, buttons: List<Button>, shortcutButtons: List<Button>, event: MotionEvent
+        button: Button,
+        buttons: List<Button>,
+        shortcutButtons: List<Button>,
+        event: MotionEvent
     ) {
         when (event.action) {
             MotionEvent.ACTION_UP -> {
@@ -166,7 +171,24 @@ class KeyActionsController(
             }
 
             MotionEvent.ACTION_DOWN -> {
-                vibrate()
+                val top = 100
+                val bottom = 200
+                val left = 100
+                val center = 3 * 100
+                val right = 100
+                val values =
+                    when(button.id) {
+                        R.id.btn0 -> top + left
+                        R.id.btn1 -> top + center
+                        R.id.btn2 -> top + right
+                        R.id.btn3 -> bottom + left
+                        R.id.btn4 -> bottom + center
+                        R.id.btn5 -> bottom + right
+                        else -> 0
+                    }
+                vibrate(
+                    milliseconds = values.toLong()
+                )
                 onActionDown(buttons, button)
             }
 
@@ -178,14 +200,15 @@ class KeyActionsController(
     }
 
     @SuppressLint("ServiceCast", "MissingPermission")
-    fun vibrate(milliseconds: Long = 100) {
+    fun vibrate(milliseconds:Long = 100) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibrator =
                 context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vibrator.vibrate(
                 CombinedVibration.createParallel(
                     VibrationEffect.createOneShot(
-                        milliseconds, VibrationEffect.DEFAULT_AMPLITUDE
+                        milliseconds,
+                        VibrationEffect.DEFAULT_AMPLITUDE
                     )
                 )
             )
@@ -195,11 +218,13 @@ class KeyActionsController(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(
                     VibrationEffect.createOneShot(
-                        milliseconds, VibrationEffect.DEFAULT_AMPLITUDE
+                        milliseconds,
+                        VibrationEffect.DEFAULT_AMPLITUDE
                     )
                 )
             } else {
-                @Suppress("DEPRECATION") vibrator.vibrate(milliseconds)
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(milliseconds)
             }
         }
     }
@@ -218,7 +243,7 @@ class KeyActionsController(
         val buttonWidth = button.width
         val buttonHeight = button.height
         if (rawX > buttonX + buttonWidth || rawX < buttonX || rawY > buttonY + buttonHeight || rawY < buttonY) {
-            if (rawX > (buttonX + (2 * buttonWidth)) || rawX < buttonX - (buttonX - buttonWidth)) {
+            if (rawX > (buttonX + (2 * buttonWidth)) || rawX < buttonX -(buttonX - buttonWidth)) {
                 findTargetButton(rawX, rawY, buttons).let { target ->
                     target ?: let {
                         findTargetButton(rawX, rawY, shortcutButtons)?.let { btn ->
@@ -238,9 +263,12 @@ class KeyActionsController(
                 val buttonIdsManager = ButtonIdsManager()
                 var angle = buttonIdsManager.calcAngle(
                     center = Pair(
-                        (buttonWidth / 2).toDouble(), (buttonHeight / 2).toDouble()
-                    ), endVector = Pair(
-                        (rawX - buttonX).toDouble(), (rawY - buttonY).toDouble()
+                        (buttonWidth / 2).toDouble(),
+                        (buttonHeight / 2).toDouble()
+                    ),
+                    endVector = Pair(
+                        (rawX - buttonX).toDouble(),
+                        (rawY - buttonY).toDouble()
                     )
                 )
                 angle = buttonIdsManager.getRound45(angle)
@@ -248,11 +276,15 @@ class KeyActionsController(
                 val buttonId = buttonIdsManager.getNextId(button.id, *dirs.toTypedArray())
                 buttons.find { it.id == buttonId }
             }?.let {
-                if (othersButtons.containsKey(button.id)) othersButtons[button.id]?.set(it.id, it)
-                else othersButtons[button.id] = mutableMapOf(it.id to it)
-                if (!it.isPressed) simulateTouchEvent(
-                    it, MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
-                )
+                if (othersButtons.containsKey(button.id))
+                    othersButtons[button.id]?.set(it.id, it)
+                else
+                    othersButtons[button.id] = mutableMapOf(it.id to it)
+                if (!it.isPressed)
+                    simulateTouchEvent(
+                        it,
+                        MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
+                    )
             }
         } else {
             if (othersButtons.containsKey(button.id)) {
@@ -297,7 +329,8 @@ class KeyActionsController(
             val key = chordsManager.getKey(it, isCapslock, isShift)
             if (chordsManager.regexIsShiftPair.matches(key)) {
                 key.split("SHIFT").first()
-            } else key
+            } else
+                key
 
         }
         buttons[0].text = getKey("100000")
