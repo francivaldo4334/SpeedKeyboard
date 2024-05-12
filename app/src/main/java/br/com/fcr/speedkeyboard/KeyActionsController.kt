@@ -26,6 +26,7 @@ class KeyActionsController(
     private var isShift = false
     private var isRunnableLongPress = false
     private var currentInputConnection: InputConnection? = null
+    private val initialVector = mutableMapOf<Int, Pair<Double, Double>>()
     fun setInputConnection(inputConnection: InputConnection) {
         currentInputConnection = inputConnection
     }
@@ -165,8 +166,15 @@ class KeyActionsController(
         shortcutButtons: List<Button>,
         event: MotionEvent
     ) {
+        val location = IntArray(2)
+        button.getLocationOnScreen(location)
+        val buttonX = location[0]
+        val buttonY = location[1]
         when (event.action) {
             MotionEvent.ACTION_UP -> {
+                if (initialVector.containsKey(button.id)) {
+                    initialVector.remove(button.id)
+                }
                 onActionUp(button, buttons)
             }
 
@@ -188,6 +196,10 @@ class KeyActionsController(
                     }
                 vibrate(
                     milliseconds = values.toLong()
+                )
+                initialVector[button.id] = Pair(
+                    event.rawX - buttonX.toDouble(),
+                    event.rawY - buttonY.toDouble()
                 )
                 onActionDown(buttons, button)
             }
@@ -243,7 +255,7 @@ class KeyActionsController(
         val buttonWidth = button.width
         val buttonHeight = button.height
         if (rawX > buttonX + buttonWidth || rawX < buttonX || rawY > buttonY + buttonHeight || rawY < buttonY) {
-            if (rawX > (buttonX + (2 * buttonWidth)) || rawX < buttonX -(buttonX - buttonWidth)) {
+            if (rawX > (buttonX + (2 * buttonWidth)) || rawX < buttonX - (buttonWidth)) {
                 findTargetButton(rawX, rawY, buttons).let { target ->
                     target ?: let {
                         findTargetButton(rawX, rawY, shortcutButtons)?.let { btn ->
@@ -259,22 +271,23 @@ class KeyActionsController(
                     }
                 }
             } else {
-                button.getLocationOnScreen(location)
-                val buttonIdsManager = ButtonIdsManager()
-                var angle = buttonIdsManager.calcAngle(
-                    center = Pair(
-                        (buttonWidth / 2).toDouble(),
-                        (buttonHeight / 2).toDouble()
-                    ),
-                    endVector = Pair(
-                        (rawX - buttonX).toDouble(),
-                        (rawY - buttonY).toDouble()
+                val center = initialVector[button.id]
+                if (center != null) {
+                    button.getLocationOnScreen(location)
+                    val buttonIdsManager = ButtonIdsManager()
+                    var angle = buttonIdsManager.calcAngle(
+                        center = center,
+                        endVector = Pair(
+                            (rawX - buttonX).toDouble(),
+                            (rawY - buttonY).toDouble()
+                        )
                     )
-                )
-                angle = buttonIdsManager.getRound45(angle)
-                val dirs = buttonIdsManager.getDirectionsByRounded45(angle)
-                val buttonId = buttonIdsManager.getNextId(button.id, *dirs.toTypedArray())
-                buttons.find { it.id == buttonId }
+                    angle = buttonIdsManager.getRound45(angle)
+                    val dirs = buttonIdsManager.getDirectionsByRounded45(angle)
+                    val buttonId = buttonIdsManager.getNextId(button.id, *dirs.toTypedArray())
+                    buttons.find { it.id == buttonId }
+                }
+                else null
             }?.let {
                 if (othersButtons.containsKey(button.id))
                     othersButtons[button.id]?.set(it.id, it)
