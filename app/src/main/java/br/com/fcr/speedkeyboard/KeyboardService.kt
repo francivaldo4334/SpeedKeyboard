@@ -1,9 +1,11 @@
 package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
+import android.graphics.Outline
 import android.inputmethodservice.InputMethodService
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewOutlineProvider
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
@@ -18,10 +20,6 @@ class KeyboardService() : InputMethodService() {
     private lateinit var buttonMode: Button
     private lateinit var buttonConfirm: Button
 
-//    private val radius = 10
-//    private fun Int.dpToPx(): Float {
-//        return this * resources.displayMetrics.density
-//    }
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
