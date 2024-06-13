@@ -10,6 +10,7 @@ import android.os.VibratorManager
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
+import android.widget.Toast
 import br.com.fcr.speedkeyboard.utils.getChordId
 
 class KeyActionsController(
@@ -127,7 +128,11 @@ class KeyActionsController(
             for (it in previousChords) {
                 val buttonIdChord = chordsManager.getButtonIdByChord(it.second)
                 if (buttonIdChord == btn.id) {
-                    chord = it.first
+                    chord = when (it.first){
+                        "DELETE" -> "⌫"
+                        "SHIFT" -> "⌂"
+                        else -> it.first
+                    }
                     isSelected = true
                     break
                 }
