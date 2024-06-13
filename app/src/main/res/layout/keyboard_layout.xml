@@ -76,6 +76,7 @@
                 android:id="@+id/spacer_bl"
                 android:layout_width="match_parent"
                 android:background="#00000000"
+                android:text="⍙"
                 android:layout_height="0dp"
                 android:layout_weight="1"/>
         </LinearLayout>

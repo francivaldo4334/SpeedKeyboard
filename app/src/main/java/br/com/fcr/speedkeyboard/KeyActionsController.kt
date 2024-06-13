@@ -10,8 +10,9 @@ import android.os.VibratorManager
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
-import android.widget.Toast
 import br.com.fcr.speedkeyboard.utils.getChordId
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class KeyActionsController(
     private val context: Context,
@@ -128,18 +129,20 @@ class KeyActionsController(
             for (it in previousChords) {
                 val buttonIdChord = chordsManager.getButtonIdByChord(it.second)
                 if (buttonIdChord == btn.id) {
-                    chord = when (it.first){
-                        "DELETE" -> "⌫"
-                        "SHIFT" -> "⌂"
-                        else -> it.first
-                    }
+                    chord = it.first
                     isSelected = true
                     break
                 }
             }
             if (isSelected) {
                 btn.isSelected = true
-                btn.text = chordsManager.getKey(chord, isCapslock, isShift)
+                var newKey = chordsManager.getKey(chord, isCapslock, isShift)
+                newKey = when (newKey) {
+                    "DELETE" -> "⌫"
+                    "SHIFT" -> "⍙"
+                    else -> newKey
+                }
+                btn.text = newKey
             } else if (!btn.isPressed) {
                 btn.isSelected = false
                 btn.text = ""
@@ -184,29 +187,13 @@ class KeyActionsController(
             }
 
             MotionEvent.ACTION_DOWN -> {
-                val top = 100
-                val bottom = 200
-                val left = 100
-                val center = 3 * 100
-                val right = 100
-                val values =
-                    when(button.id) {
-                        R.id.btn0 -> top + left
-                        R.id.btn1 -> top + center
-                        R.id.btn2 -> top + right
-                        R.id.btn3 -> bottom + left
-                        R.id.btn4 -> bottom + center
-                        R.id.btn5 -> bottom + right
-                        else -> 0
-                    }
-                vibrate(
-                    milliseconds = values.toLong()
-                )
-                initialVector[button.id] = Pair(
-                    event.rawX - buttonX.toDouble(),
-                    event.rawY - buttonY.toDouble()
-                )
-                onActionDown(buttons, button)
+
+                    vibrate()
+                    initialVector[button.id] = Pair(
+                        event.rawX - buttonX.toDouble(),
+                        event.rawY - buttonY.toDouble()
+                    )
+                    onActionDown(buttons, button)
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -217,7 +204,8 @@ class KeyActionsController(
     }
 
     @SuppressLint("ServiceCast", "MissingPermission")
-    fun vibrate(milliseconds:Long = 100) {
+    fun vibrate(milliseconds: Long = 100) {
+        val amplitude = VibrationEffect.DEFAULT_AMPLITUDE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibrator =
                 context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -225,7 +213,7 @@ class KeyActionsController(
                 CombinedVibration.createParallel(
                     VibrationEffect.createOneShot(
                         milliseconds,
-                        VibrationEffect.DEFAULT_AMPLITUDE
+                        amplitude
                     )
                 )
             )
@@ -236,7 +224,7 @@ class KeyActionsController(
                 vibrator.vibrate(
                     VibrationEffect.createOneShot(
                         milliseconds,
-                        VibrationEffect.DEFAULT_AMPLITUDE
+                        amplitude
                     )
                 )
             } else {
@@ -291,8 +279,7 @@ class KeyActionsController(
                     val dirs = buttonIdsManager.getDirectionsByRounded45(angle)
                     val buttonId = buttonIdsManager.getNextId(button.id, *dirs.toTypedArray())
                     buttons.find { it.id == buttonId }
-                }
-                else null
+                } else null
             }?.let {
                 if (othersButtons.containsKey(button.id))
                     othersButtons[button.id]?.set(it.id, it)

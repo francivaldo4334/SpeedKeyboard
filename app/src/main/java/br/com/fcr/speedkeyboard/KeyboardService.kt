@@ -7,6 +7,8 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 
 class KeyboardService() : InputMethodService() {
@@ -16,6 +18,10 @@ class KeyboardService() : InputMethodService() {
     private lateinit var buttonMode: Button
     private lateinit var buttonConfirm: Button
 
+//    private val radius = 10
+//    private fun Int.dpToPx(): Float {
+//        return this * resources.displayMetrics.density
+//    }
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreateInputView(): View {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
