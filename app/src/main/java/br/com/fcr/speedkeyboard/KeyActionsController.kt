@@ -10,7 +10,13 @@ import android.os.VibratorManager
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
+import androidx.constraintlayout.solver.widgets.Rectangle
 import br.com.fcr.speedkeyboard.utils.getChordId
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 class KeyActionsController(
     private val context: Context,
@@ -232,51 +238,6 @@ class KeyActionsController(
         }
     }
 
-    //    private fun onActionScroll(
-//        button: Button,
-//        buttons: List<Button>,
-//        shortcutButtons: List<Button>,
-//        rawX: Float,
-//        rawY: Float
-//    ) {
-//        val location = IntArray(2)
-//        button.getLocationOnScreen(location)
-//        val buttonX = location[0]
-//        val buttonY = location[1]
-//        val buttonWidth = button.width
-//        val buttonHeight = button.height
-//        if (rawX > buttonX + buttonWidth || rawX < buttonX || rawY > buttonY + buttonHeight || rawY < buttonY) {
-//            findTargetButton(rawX, rawY, buttons).let { target ->
-//                target ?: let {
-//                    findTargetButton(rawX, rawY, shortcutButtons)?.let { btn ->
-//                        val buttonId = when (btn.id) {
-//                            R.id.spacer_tl -> R.id.btn2
-//                            R.id.spacer_tr -> R.id.btn0
-//                            R.id.spacer_bl -> R.id.btn5
-//                            R.id.spacer_br -> R.id.btn3
-//                            else -> 0
-//                        }
-//                        buttons.find { it.id == buttonId }
-//                    }
-//                }
-//            }?.let {
-//                if (othersButtons.containsKey(button.id)) othersButtons[button.id]?.set(it.id, it)
-//                else othersButtons[button.id] = mutableMapOf(it.id to it)
-//                if (!it.isPressed)
-//                    simulateTouchEvent(
-//                        it,
-//                        MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
-//                    )
-//            }
-//        } else {
-//            if (othersButtons.containsKey(button.id)) {
-//                othersButtons[button.id]?.forEach {
-//                    onActionUp(it.value, buttons)
-//                }
-//            }
-//            othersButtons.remove(button.id)
-//        }
-//    }
     private fun onActionScroll(
         button: Button,
         buttons: List<Button>,
@@ -286,17 +247,19 @@ class KeyActionsController(
     ) {
         if (!isWithinBounds(button, rawX, rawY)) {
             val targetButton = findTargetButton(rawX, rawY, buttons)
-                ?: findTargetButton(rawX, rawY, shortcutButtons)?.let {btn ->
+                ?: findTargetButton(rawX, rawY, shortcutButtons)?.let { btn ->
                     val buttonId = mapSpacerToButtonId(btn.id)
                     buttons.find { it.id == buttonId }
                 }
             targetButton?.let {
-                updateOthersButtons(button.id, it)
-                if (!it.isPressed) {
-                    simulateTouchEvent(
-                        it,
-                        MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
-                    )
+                if (collisionOval(rawX, rawY, it)) {
+                    updateOthersButtons(button.id, it)
+                    if (!it.isPressed) {
+                        simulateTouchEvent(
+                            it,
+                            MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
+                        )
+                    }
                 }
             }
         } else {
@@ -305,9 +268,52 @@ class KeyActionsController(
         }
     }
 
+    private fun collisionOval(rawX: Float, rawY: Float, button: Button): Boolean {
+        val location = IntArray(2).apply { button.getLocationOnScreen(this) }
+        val touchBox = Rectangle().apply {
+            x = rawX.toInt();y = rawY.toInt();width = 50;height = 50
+        }
+        val buttonBox = Rectangle().apply {
+            x = location[0]; y = location[1]; width = button.width;height = button.height
+        }
+
+        fun generateEllipsePoints(btn: Rectangle): List<Pair<Double, Double>> {
+            val (eX, eY) = (btn.x + (btn.width / 2)) to (btn.y + (btn.height / 2))
+            val points = mutableListOf<Pair<Double, Double>>()
+            val tStep = 2 * PI / 100
+            for (t in 0..100) {
+                val angle = t * tStep
+                val x = eX * cos(angle)
+                val y = eY * sin(angle)
+                points.add(x to y)
+            }
+            return points
+        }
+
+        val touchPoints = generateEllipsePoints(touchBox)
+        val buttonPoints = generateEllipsePoints(buttonBox)
+        for (touchPoint in touchPoints)
+            for (buttonPoint in buttonPoints)
+                if (distance(touchPoint, buttonPoint) < 1e-6)
+                    return true
+
+
+        return false
+    }
+
+    private fun distance(
+        firstPoint: Pair<Double, Double>,
+        secondPoint: Pair<Double, Double>
+    ): Double {
+        return sqrt(
+                (firstPoint.first - secondPoint.first).pow(2) +
+                (firstPoint.second - secondPoint.second).pow(2)
+        )
+    }
+
     private fun releaseOtherButtons(buttonId: Int, buttons: List<Button>) {
         othersButtons[buttonId]?.forEach {
-            onActionUp(it.value,  buttons)
+            onActionUp(it.value, buttons)
         }
     }
 
@@ -317,7 +323,7 @@ class KeyActionsController(
         }
     }
 
-    private fun mapSpacerToButtonId(id: Int): Int{
+    private fun mapSpacerToButtonId(id: Int): Int {
         return when (id) {
             R.id.spacer_tl -> R.id.btn2
             R.id.spacer_tr -> R.id.btn0
@@ -348,7 +354,7 @@ class KeyActionsController(
             }
             val (buttonX, buttonY) = location
             val (buttonWidth, buttonHeight) = button.width to button.height
-            if (x.toInt() in buttonX .. (buttonX + buttonWidth) && y.toInt() in buttonY .. (buttonY + buttonHeight)) {
+            if (x.toInt() in buttonX..(buttonX + buttonWidth) && y.toInt() in buttonY..(buttonY + buttonHeight)) {
                 return button
             }
         }

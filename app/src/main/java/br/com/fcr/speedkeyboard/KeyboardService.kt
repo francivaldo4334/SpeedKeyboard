@@ -1,16 +1,12 @@
 package br.com.fcr.speedkeyboard
 
 import android.annotation.SuppressLint
-import android.graphics.Outline
 import android.inputmethodservice.InputMethodService
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewOutlineProvider
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
-import kotlin.math.pow
-import kotlin.math.sqrt
+import android.widget.Button
 
 
 class KeyboardService() : InputMethodService() {
@@ -25,65 +21,62 @@ class KeyboardService() : InputMethodService() {
         return layoutInflater.inflate(R.layout.keyboard_layout, null).apply {
             buttonMode = findViewById(R.id.button_mode)
             buttonConfirm = findViewById(R.id.button_confirm)
-            buttons = buildList {
-                add(findViewById(R.id.btn0))
-                add(findViewById(R.id.btn1))
-                add(findViewById(R.id.btn2))
-                add(findViewById(R.id.btn3))
-                add(findViewById(R.id.btn4))
-                add(findViewById(R.id.btn5))
-            }
-            shortcutButtons = buildList {
-                add(findViewById(R.id.spacer_tl))
-                add(findViewById(R.id.spacer_tr))
-                add(findViewById(R.id.spacer_bl))
-                add(findViewById(R.id.spacer_br))
-            }
+            buttons = listOf(
+                findViewById(R.id.btn0),
+                findViewById(R.id.btn1),
+                findViewById(R.id.btn2),
+                findViewById(R.id.btn3),
+                findViewById(R.id.btn4),
+                findViewById(R.id.btn5),
+            )
+            shortcutButtons = listOf(
+                findViewById(R.id.spacer_tl),
+                findViewById(R.id.spacer_tr),
+                findViewById(R.id.spacer_bl),
+                findViewById(R.id.spacer_br),
+            )
 
-            buttons.forEach {
-                it.setOnTouchListener { v, event ->
+            buttons.forEach { button ->
+                button.setOnTouchListener { view, event ->
                     keyActionsController.setInputConnection(currentInputConnection)
-                    keyActionsController.onActionTouch(v as Button,buttons, shortcutButtons,event)
+                    keyActionsController.onActionTouch(
+                        view as Button,
+                        buttons,
+                        shortcutButtons,
+                        event
+                    )
                     true
                 }
             }
-            buttonMode.setOnClickListener {
+            buttonMode.setOnClickListener { view ->
                 keyActionsController.vibrate()
                 val textMode = keyActionsController.nextMode()
                 keyActionsController.setMode(textMode, buttons)
-                (it as Button).text = textMode
+                (view as Button).text = textMode
             }
             buttonConfirm.setOnClickListener {
                 keyActionsController.vibrate()
                 val editorInfo = currentInputEditorInfo
-                if (editorInfo != null) {
+                editorInfo?.let {
                     val imeOptionsActionId = editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
                     currentInputConnection.apply {
-                        when(imeOptionsActionId){
+                        when (imeOptionsActionId) {
                             IME_ACTION_NONE -> {
                                 sendKeyEvent(
-                                    KeyEvent(
-                                        KeyEvent.ACTION_DOWN,
-                                        KeyEvent.KEYCODE_ENTER
-                                    )
+                                    KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
                                 )
                                 sendKeyEvent(
-                                    KeyEvent(
-                                        KeyEvent.ACTION_UP,
-                                        KeyEvent.KEYCODE_ENTER
-                                    )
+                                    KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ENTER)
                                 )
                             }
-                            else -> {
+
+                            else ->
                                 performEditorAction(imeOptionsActionId)
-                            }
                         }
                     }
                 }
             }
-            keyActionsController = KeyActionsController(
-                context=this@KeyboardService,
-            )
+            keyActionsController = KeyActionsController(this@KeyboardService)
         }
     }
 }
