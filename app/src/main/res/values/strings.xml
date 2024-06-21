@@ -12,4 +12,5 @@
     <string name="mode_chars">abc</string>
     <string name="mode_emoji">㋛</string>
     <string name="mode_number">123</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>

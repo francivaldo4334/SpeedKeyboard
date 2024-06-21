@@ -242,16 +242,18 @@ class KeyActionsController(
     ) {
         if (!isWithinBounds(button, rawX, rawY)) {
             val targetButton = findTargetButton(rawX, rawY, buttons)
-                ?: findTargetButton(rawX, rawY, shortcutButtons)?.let { btn ->
-                    val buttonId = mapSpacerToButtonId(btn.id)
-                    buttons.find { it.id == buttonId }
-                }
+                ?: findTargetButton(rawX, rawY, shortcutButtons)
             targetButton?.let {
                 if (collisionOval(rawX, rawY, it)) {
-                    updateOthersButtons(button.id, it)
-                    if (!it.isPressed) {
+                    val localButton = if (isSpacerButton(it.id)) {
+                        val buttonId = mapSpacerToButtonId(it.id)
+                        buttons.find { it.id == buttonId }
+                    } else { it }
+
+                    updateOthersButtons(button.id, localButton!!)
+                    if (!localButton.isPressed) {
                         simulateTouchEvent(
-                            it,
+                            localButton,
                             MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, rawX, rawY, 0)
                         )
                     }
@@ -296,6 +298,10 @@ class KeyActionsController(
             R.id.spacer_br -> R.id.btn3
             else -> 0
         }
+    }
+
+    private fun isSpacerButton(id: Int): Boolean {
+        return id in setOf(R.id.spacer_tl,R.id.spacer_tr,R.id.spacer_bl,R.id.spacer_br)
     }
 
     private fun isWithinBounds(button: Button, rawX: Float, rawY: Float): Boolean {

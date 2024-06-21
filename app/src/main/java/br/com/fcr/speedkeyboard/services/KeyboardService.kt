@@ -1,4 +1,4 @@
-package br.com.fcr.speedkeyboard
+package br.com.fcr.speedkeyboard.services
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
@@ -7,6 +7,8 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
 import android.widget.Button
+import br.com.fcr.speedkeyboard.KeyActionsController
+import br.com.fcr.speedkeyboard.R
 
 
 class KeyboardService() : InputMethodService() {
