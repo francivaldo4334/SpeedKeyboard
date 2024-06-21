@@ -138,6 +138,7 @@ class KeyActionsController(
                 newKey = when (newKey) {
                     "DELETE" -> "⌫"
                     "SHIFT" -> "⍙"
+                    " " -> "⎵"
                     else -> newKey
                 }
                 btn.text = newKey
