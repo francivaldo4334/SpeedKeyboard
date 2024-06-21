@@ -100,15 +100,14 @@ class KeyboardService() : InputMethodService() {
             }
         }
         val textActionIme = when(actionTypeClass) {
-            EditorInfo.IME_ACTION_NONE -> {}
-            EditorInfo.IME_ACTION_GO -> {}
+            EditorInfo.IME_ACTION_GO -> "⇢"
             EditorInfo.IME_ACTION_DONE -> {}
-            EditorInfo.IME_ACTION_NEXT -> {}
+            EditorInfo.IME_ACTION_NEXT -> "↦"
             EditorInfo.IME_ACTION_SEND -> {}
             EditorInfo.IME_ACTION_SEARCH -> {}
-            EditorInfo.IME_ACTION_PREVIOUS -> {}
+            EditorInfo.IME_ACTION_PREVIOUS -> "↤"
             EditorInfo.IME_ACTION_UNSPECIFIED -> {}
-            else -> {}
+            else -> "↩"
         }
         super.onStartInputView(editorInfo, restarting)
     }
