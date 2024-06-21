@@ -18,6 +18,7 @@ class KeyboardService() : InputMethodService() {
     private lateinit var buttonMode: Button
     private lateinit var buttonConfirm: Button
     private var inputTypeClass = EditorInfo.TYPE_CLASS_TEXT
+    private var actionTypeClass = EditorInfo.IME_ACTION_NONE
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreateInputView(): View {
@@ -85,6 +86,7 @@ class KeyboardService() : InputMethodService() {
 
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
         inputTypeClass = editorInfo!!.inputType and EditorInfo.TYPE_MASK_CLASS
+        actionTypeClass = editorInfo!!.imeOptions and (EditorInfo.IME_MASK_ACTION or EditorInfo.IME_FLAG_NO_ENTER_ACTION)
         when (inputTypeClass) {
             EditorInfo.TYPE_CLASS_PHONE, EditorInfo.TYPE_CLASS_NUMBER -> {
                 val textMode = getString(R.string.mode_number)
@@ -96,6 +98,17 @@ class KeyboardService() : InputMethodService() {
                 keyActionsController.setMode(textMode, buttons)
                 buttonMode.text = textMode
             }
+        }
+        val textActionIme = when(actionTypeClass) {
+            EditorInfo.IME_ACTION_NONE -> {}
+            EditorInfo.IME_ACTION_GO -> {}
+            EditorInfo.IME_ACTION_DONE -> {}
+            EditorInfo.IME_ACTION_NEXT -> {}
+            EditorInfo.IME_ACTION_SEND -> {}
+            EditorInfo.IME_ACTION_SEARCH -> {}
+            EditorInfo.IME_ACTION_PREVIOUS -> {}
+            EditorInfo.IME_ACTION_UNSPECIFIED -> {}
+            else -> {}
         }
         super.onStartInputView(editorInfo, restarting)
     }
