@@ -10,13 +10,7 @@ import android.os.VibratorManager
 import android.view.MotionEvent
 import android.view.inputmethod.InputConnection
 import android.widget.Button
-import androidx.constraintlayout.solver.widgets.Rectangle
 import br.com.fcr.speedkeyboard.utils.getChordId
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 class KeyActionsController(
     private val context: Context,
@@ -269,46 +263,16 @@ class KeyActionsController(
     }
 
     private fun collisionOval(rawX: Float, rawY: Float, button: Button): Boolean {
-        val location = IntArray(2).apply { button.getLocationOnScreen(this) }
-        val touchBox = Rectangle().apply {
-            x = rawX.toInt();y = rawY.toInt();width = 50;height = 50
+        val (width, height) = button.width to button.height
+        val (centerX, centerY) = IntArray(2).apply {
+            button.getLocationOnScreen(this)
+            this[0] += width / 2
+            this[1] += height / 2
         }
-        val buttonBox = Rectangle().apply {
-            x = location[0]; y = location[1]; width = button.width;height = button.height
-        }
-
-        fun generateEllipsePoints(btn: Rectangle): List<Pair<Double, Double>> {
-            val (eX, eY) = (btn.x + (btn.width / 2)) to (btn.y + (btn.height / 2))
-            val points = mutableListOf<Pair<Double, Double>>()
-            val tStep = 2 * PI / 100
-            for (t in 0..100) {
-                val angle = t * tStep
-                val x = eX * cos(angle)
-                val y = eY * sin(angle)
-                points.add(x to y)
-            }
-            return points
-        }
-
-        val touchPoints = generateEllipsePoints(touchBox)
-        val buttonPoints = generateEllipsePoints(buttonBox)
-        for (touchPoint in touchPoints)
-            for (buttonPoint in buttonPoints)
-                if (distance(touchPoint, buttonPoint) < 1e-6)
-                    return true
-
-
-        return false
-    }
-
-    private fun distance(
-        firstPoint: Pair<Double, Double>,
-        secondPoint: Pair<Double, Double>
-    ): Double {
-        return sqrt(
-                (firstPoint.first - secondPoint.first).pow(2) +
-                (firstPoint.second - secondPoint.second).pow(2)
-        )
+        val (pointX, pointY) = rawX + (width / 2) to rawY + (height / 2)
+        val normalizedX = (pointX - (centerX + (width / 2))) / (width / 2)
+        val normalizedY = (pointY - (centerY + (height / 2))) / (height / 2)
+        return (normalizedX * normalizedX) + (normalizedY * normalizedY) <= 1
     }
 
     private fun releaseOtherButtons(buttonId: Int, buttons: List<Button>) {
