@@ -84,10 +84,15 @@ class KeyboardService() : InputMethodService() {
     }
 
     override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
-        val inputTypeClass = editorInfo!!.inputType and EditorInfo.TYPE_MASK_CLASS
+        inputTypeClass = editorInfo!!.inputType and EditorInfo.TYPE_MASK_CLASS
         when (inputTypeClass) {
             EditorInfo.TYPE_CLASS_PHONE, EditorInfo.TYPE_CLASS_NUMBER -> {
-                val textMode = keyActionsController.nextMode()
+                val textMode = getString(R.string.mode_number)
+                keyActionsController.setMode(textMode, buttons)
+                buttonMode.text = textMode
+            }
+            else -> {
+                val textMode = getString(R.string.mode_chars)
                 keyActionsController.setMode(textMode, buttons)
                 buttonMode.text = textMode
             }
