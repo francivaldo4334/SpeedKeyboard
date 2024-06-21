@@ -2,10 +2,10 @@ package br.com.fcr.speedkeyboard.services
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.EditorInfo.IME_ACTION_NONE
 import android.widget.Button
 import br.com.fcr.speedkeyboard.KeyActionsController
 import br.com.fcr.speedkeyboard.R
@@ -17,6 +17,7 @@ class KeyboardService() : InputMethodService() {
     private lateinit var keyActionsController: KeyActionsController
     private lateinit var buttonMode: Button
     private lateinit var buttonConfirm: Button
+    private var inputTypeClass = EditorInfo.TYPE_CLASS_TEXT
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     override fun onCreateInputView(): View {
@@ -63,7 +64,7 @@ class KeyboardService() : InputMethodService() {
                     val imeOptionsActionId = editorInfo.imeOptions and EditorInfo.IME_MASK_ACTION
                     currentInputConnection.apply {
                         when (imeOptionsActionId) {
-                            IME_ACTION_NONE -> {
+                            EditorInfo.IME_ACTION_NONE -> {
                                 sendKeyEvent(
                                     KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER)
                                 )
@@ -80,5 +81,17 @@ class KeyboardService() : InputMethodService() {
             }
             keyActionsController = KeyActionsController(this@KeyboardService)
         }
+    }
+
+    override fun onStartInputView(editorInfo: EditorInfo?, restarting: Boolean) {
+        val inputTypeClass = editorInfo!!.inputType and EditorInfo.TYPE_MASK_CLASS
+        when (inputTypeClass) {
+            EditorInfo.TYPE_CLASS_PHONE, EditorInfo.TYPE_CLASS_NUMBER -> {
+                val textMode = keyActionsController.nextMode()
+                keyActionsController.setMode(textMode, buttons)
+                buttonMode.text = textMode
+            }
+        }
+        super.onStartInputView(editorInfo, restarting)
     }
 }
