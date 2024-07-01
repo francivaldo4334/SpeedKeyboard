@@ -1,8 +1,19 @@
- private val numberChords = mapOf(
-        "100000" to "1SHIFT!",
-        "110000" to "2SHIFT@",
-        "010000" to "3SHIFT#",
-        "011000" to "4SHIFT$",
+# Mapa de Teclas Númericas
+|Acorde|Caractere|Shiftado|
+|-|-|-|
+|⬤◯◯<p>◯◯◯|1|!|
+|⬤⬤◯<p>◯◯◯|2|@|
+|◯⬤◯<p>◯◯◯|3|#|
+|◯⬤⬤<p>◯◯◯|4|$|
+"◯◯⬤◯◯◯" to "4SHIFT%",
+"◯◯◯⬤◯◯" to "5SHIFT¨",
+"◯◯◯⬤⬤◯" to "6SHIFT&",
+"◯◯◯◯⬤◯" to "7SHIFT*",
+"◯◯◯◯⬤⬤" to "8SHIFT(",
+"◯◯◯◯◯⬤" to "-1SHIFT)",
+"⬤◯◯◯◯⬤" to "SHIFT",
+"◯◯⬤⬤◯◯" to "DELETE",
+"◯◯◯⬤⬤⬤" to " ",
         "001000" to "5SHIFT%",
         "000100" to "6SHIFT¨",
         "000110" to "7SHIFT&",
